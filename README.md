@@ -10,6 +10,8 @@ Les deux projets d'origine ne sont pas modifiés : cette fusion est une app à p
 
 ## Ce que fait l'app
 
+**Apparence** : style violet et rose, cartes arrondies, typo Plus Jakarta Sans et Inter ; thème clair, sombre ou automatique (Réglages, ou bouton en haut à droite).
+
 **Mes cours**
 - Cours rangés par matière, avec leur état : brouillon, rédigé, révisions prêtes, contrôle dans X jours, envoyé dans Notion.
 - Encadré « Ce soir » avec les séances de révision du jour.

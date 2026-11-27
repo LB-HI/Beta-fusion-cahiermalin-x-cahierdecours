@@ -6,7 +6,7 @@
 <title>Cahier Malin × Notion</title>
 <script type="application/json" id="claude-artifacts-manifest">{"permissions":["full-access","notifications"]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
 /* VOICE: calme (fusion Cahier de cours × Cahier Malin), outil de travail d'étudiant — rien ne doit distraire de la prise de notes
    IDEA: un cahier Seyès français, la page sur laquelle on écrit en cours
@@ -221,6 +221,147 @@ a.btn{text-decoration:none;color:inherit;display:inline-flex;align-items:center}
 .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--muted);margin-right:6px;flex:none}.dot.ok{background:#448361}.dot.err{background:#D44C47}.dot.wait{background:#CB912F}
 .stat{display:flex;align-items:center;font-size:15px;margin:4px 0}
 #autoChip{background:#E7F3F8;color:#12384d;border-color:#c7e0ec}
+/* ====================================================================
+   THÈME : violet et rose, doux et moderne — clair / sombre
+   ==================================================================== */
+:root{
+  --bg:light-dark(#f6f3fc,#110f1a);
+  --bg2:light-dark(#fdf2f8,#171326);
+  --ink:light-dark(#1f1a33,#efeaf9);
+  --muted:light-dark(#6b6488,#a59fc0);
+  --paper:light-dark(#ffffff,#1b1729);
+  --panel:light-dark(#ffffff,#1d192c);
+  --bd:light-dark(#e6dff5,#2f2945);
+  --hov:light-dark(#f2ecfd,#29233d);
+  --line:light-dark(#efe9fb,#252036);
+  --line2:light-dark(#ddd3f6,#2f2847);
+  --red:#ec4899;
+  --violet:#7c3aed;--violet2:light-dark(#6d28d9,#a78bfa);
+  --pink:#ec4899;--pink2:light-dark(#db2777,#f472b6);
+  --grad:linear-gradient(135deg,#8b5cf6 0%,#c084fc 45%,#ec4899 100%);
+  --soft:light-dark(#f3edff,#251f3a);
+  --softpink:light-dark(#fdeaf4,#2c1d33);
+  --danger:light-dark(#d92d4c,#ff7a93);
+  --ok:light-dark(#15803d,#4ade80);
+  --shadow:0 1px 2px light-dark(#2a1b5c12,#0006),0 12px 32px light-dark(#4c2a9a14,#0005);
+  --shadow2:0 18px 50px light-dark(#6d28d926,#000a);
+  --r:16px;
+}
+body{background:radial-gradient(1200px 600px at 100% -10%,light-dark(#fbe7f3,#2a1534) 0,transparent 60%),radial-gradient(900px 500px at -10% 0,light-dark(#ede5ff,#1e1838) 0,transparent 55%),var(--bg);background-attachment:fixed;font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+::selection{background:light-dark(#e9d5ff,#5b21b6)}
+h1.app,.head h1,.empty h2,.subject h2,.panel h3,.evening h3,.tonight h2,.fiche h3,.score,#ed h1,#ed h2,#ed h3,#ed h4,.viewer h1,.viewer h2,.viewer h3,.viewer h4,.tgl-t,dialog h3,.mm-c,.mm-b h4,.card strong{font-family:'Plus Jakarta Sans',Inter,system-ui,sans-serif!important;font-stretch:normal}
+/* ---------- en-tête et navigation ---------- */
+.top{padding:20px max(4vw,14px) 4px}
+h1.app{font-weight:800;letter-spacing:-.02em;display:flex;align-items:baseline;gap:8px}
+h1.app span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+h1.app::before{content:"✦";width:36px;height:36px;border-radius:12px;background:var(--grad);align-self:center;box-shadow:0 6px 16px #a855f755;flex:none;display:grid;place-items:center;color:#fff;font-size:18px;-webkit-text-fill-color:#fff}
+.chip{background:var(--panel);border-color:var(--bd);box-shadow:var(--shadow);padding:6px 12px}
+#autoChip{background:var(--soft);color:var(--violet2);border-color:transparent}
+.themebtn{width:40px;height:40px;border-radius:12px;border:1px solid var(--bd);background:var(--panel);cursor:pointer;font-size:18px;display:grid;place-items:center;box-shadow:var(--shadow)}
+.themebtn:hover{border-color:var(--violet2)}
+.nav{border:0;gap:6px;padding:12px max(4vw,14px) 4px}
+.nav a{border-radius:999px;min-height:42px;padding:8px 16px;border:1px solid transparent;transition:background .2s,color .2s}
+.nav a:hover{background:var(--hov);color:var(--ink)}
+.nav a.on{background:var(--grad);color:#fff;border-color:transparent;margin:0;box-shadow:0 6px 18px #a855f740}
+.navrec{background:#fff;box-shadow:0 0 0 3px #ec489966}
+/* ---------- surfaces ---------- */
+.panel,.evening,.card,.fiche,.empty,.flip,.choice,dialog,.pop{border-radius:var(--r)}
+.panel,.evening,.card,.fiche{border-color:var(--bd);box-shadow:var(--shadow)}
+.panel h3{font-size:19px;letter-spacing:-.01em}
+.label{color:var(--violet2);font-weight:700;letter-spacing:.01em}
+.card{padding:16px;gap:8px;transition:transform .2s,box-shadow .2s,border-color .2s}
+.card:hover,.card:focus-visible{border-color:var(--violet2);box-shadow:var(--shadow2);transform:translateY(-2px)}
+.empty{background:linear-gradient(var(--panel),var(--panel)) padding-box,var(--grad) border-box;border:1.5px dashed transparent}
+.subject h2{font-size:21px;letter-spacing:-.01em}
+.subject h2::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--grad);align-self:center}
+.tonight{background:var(--grad);border-radius:20px;box-shadow:0 14px 40px #a855f74d;padding:22px 24px}
+.tonight .label{color:#fde7f3}
+.head h1{letter-spacing:-.02em}
+.tabs{border:0;gap:6px;background:var(--panel);padding:5px;border-radius:999px;border:1px solid var(--bd);width:max-content;max-width:100%;box-shadow:var(--shadow)}
+.tabs button{border-radius:999px;border:0;min-height:40px;padding:8px 16px}
+.tabs button.on{background:var(--soft);color:var(--violet2);border:0}
+/* ---------- boutons et champs ---------- */
+.btn{border-radius:12px;border-color:var(--bd);font-weight:600;transition:background .15s,border-color .15s,box-shadow .15s,transform .15s}
+.btn:hover{border-color:var(--violet2);background:var(--hov)}
+.btn.main{background:var(--grad);border:0;color:#fff;box-shadow:0 6px 18px #a855f74d}
+.btn.main:hover{filter:brightness(1.05);box-shadow:0 8px 24px #ec489955}
+.btn.ghost{border-color:transparent}
+.btn:focus-visible,.seg button:focus-visible,.field select:focus-visible,.field input:focus-visible,.nav a:focus-visible,.tabs button:focus-visible{outline:3px solid #c084fc;outline-offset:2px}
+.field{color:var(--muted);font-weight:600}
+.field select,.field input,.set-row input[type=text],.set-row select,.ask input,.linkpop input,dialog textarea,#mdout{border-radius:12px;border-color:var(--bd);background:var(--panel)}
+.field select:focus,.field input:focus,.set-row input:focus,.set-row select:focus,.ask input:focus{border-color:var(--violet2);outline:none;box-shadow:0 0 0 4px light-dark(#ede5ff,#3b2a66)}
+.seg{border-radius:12px;padding:3px;gap:3px;border-color:var(--bd)}
+.seg button{border-radius:9px}
+.seg button[aria-pressed=true]{background:var(--soft);color:var(--violet2);font-weight:700}
+input[type=checkbox],input[type=radio]{accent-color:var(--violet)}
+.danger{color:var(--danger)!important;border-color:var(--danger)!important}
+.err,#status.err{color:var(--danger)}.ok,#status.ok{color:var(--ok)}
+/* ---------- éditeur ---------- */
+.tb{background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);gap:8px}
+.grp{border-radius:12px;border-color:var(--bd);padding:3px;box-shadow:var(--shadow)}
+.tb button{border-radius:9px}
+.tb button:hover,.tb button:focus-visible{background:var(--soft)}
+.paper{border-radius:20px;box-shadow:var(--shadow2);border:1px solid var(--bd);
+  background-image:linear-gradient(90deg,transparent 64px,#f9a8d4 64px,#f9a8d4 66px,transparent 66px),linear-gradient(var(--line2) 1px,transparent 1px),linear-gradient(var(--line) 1px,transparent 1px)}
+#ed{caret-color:var(--pink)}
+#ed code{background:var(--softpink);color:var(--pink2)}
+.codeblock{border-radius:12px}
+.eq{background:var(--soft)}
+.dock{background:color-mix(in srgb,var(--panel) 82%,transparent);backdrop-filter:blur(14px);border-top:1px solid var(--bd);box-shadow:0 -8px 30px light-dark(#4c2a9a12,#0006)}
+.meter{background:var(--hov)}.meter i{background:var(--grad)}
+#partial{color:var(--violet2)}
+.micbtn[aria-pressed=true],.recbtn[aria-pressed=true]{background:var(--pink);border-color:var(--pink);color:#fff;box-shadow:0 0 0 5px #ec489933}
+@media(prefers-reduced-motion:no-preference){.recbtn[aria-pressed=true]{animation:pulse 1.6s ease-in-out infinite}@keyframes pulse{50%{box-shadow:0 0 0 9px #ec489910}}}
+/* ---------- révisions ---------- */
+.fiche{border-top-width:0;position:relative;overflow:hidden}
+.fiche::before{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:var(--fc)}
+.astuce{background:var(--softpink);color:light-dark(#831843,#fbcfe8);border-radius:12px}
+.flip{background:var(--panel);border-color:var(--bd);box-shadow:var(--shadow2);border-radius:22px}
+.flip.back{background:linear-gradient(135deg,light-dark(#f5f0ff,#241d3b),light-dark(#fdeef6,#2e1c33));color:var(--ink)}
+.boxes span.on{background:var(--violet)}
+.bar{background:var(--hov);height:8px;border-radius:4px}.bar i{background:var(--grad)}
+.score{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.choice{border-color:var(--bd)}
+.choice:hover{border-color:var(--violet2);background:var(--hov)}
+.choice b{background:var(--soft);color:var(--violet2);border-radius:8px}
+.choice.good{border-color:var(--ok);background:light-dark(#ecfdf3,#12301f);color:var(--ink)}
+.choice.bad{border-color:var(--danger);background:light-dark(#fff1f3,#3a1520);color:var(--ink)}
+.mm-c{background:var(--grad);box-shadow:0 8px 22px #a855f74d}
+.mm-b div{border-radius:14px;background:var(--panel)}
+.mm-b span{background:var(--soft)}
+/* ---------- planning ---------- */
+.timeline{background:var(--hov)}
+.timeline i{background:var(--grad)}
+.timeline .now{background:var(--ink)}
+.slot{border-color:var(--bd)}
+.slot.cur{background:var(--softpink);border-radius:12px}
+.slot input{accent-color:var(--pink)}
+/* ---------- pastilles, notes, messages ---------- */
+.pill{background:var(--hov);color:var(--muted)}
+.pill.ok{background:light-dark(#e8f8ee,#13301f);color:var(--ok)}
+.pill.warn{background:light-dark(#fff3e6,#33230f);color:light-dark(#b45309,#fbbf24)}
+.pill.red{background:light-dark(#ffe8ef,#3a1422);color:var(--pink2)}
+.pill.blue{background:var(--soft);color:var(--violet2)}
+.note{background:var(--soft);color:var(--ink);border-radius:14px;border:1px solid light-dark(#e4d8ff,#3a2f5c)}
+.note.warn{background:light-dark(#fff6e8,#2f2413);border-color:light-dark(#fde2b8,#4a3818)}
+.note.night{background:linear-gradient(135deg,#2e1065,#831843);color:#fff;border:0}
+#storeNote{font-size:14px}
+#toast{border-radius:14px;background:light-dark(#1f1a33,#efeaf9);color:light-dark(#fff,#1f1a33)}
+#toast.ok{background:linear-gradient(135deg,#16a34a,#0d9488);color:#fff}#toast.err{background:linear-gradient(135deg,#e11d48,#be185d);color:#fff}
+dialog{border-color:var(--bd);box-shadow:var(--shadow2);padding:22px}
+dialog::backdrop{background:light-dark(#2e106555,#000a);backdrop-filter:blur(3px)}
+.busy .spin{border-color:var(--hov);border-top-color:var(--violet);border-right-color:var(--pink)}
+.pop{box-shadow:var(--shadow2);border-color:var(--bd)}
+.dot.ok{background:var(--ok)}.dot.err{background:var(--danger)}.dot.wait{background:#f59e0b}
+.log{border-radius:12px}
+/* encadrés Notion : versions sombres plus douces */
+.callout[data-k=corr]{background:light-dark(#EDF3EC,#16281c);color:light-dark(#1d3b26,#c6ecd2)}.callout[data-k=ret]{background:light-dark(#FBF3DB,#2e2712);color:light-dark(#4a3a0e,#f3e2a6)}.callout[data-k=warn]{background:light-dark(#FDEBEC,#341a1d);color:light-dark(#5d1a17,#f6c4c6)}.callout[data-k=def]{background:light-dark(#E7F3F8,#132a35);color:light-dark(#12384d,#bfe3f3)}.callout[data-k=rq]{background:light-dark(#F1F1EF,#25232b);color:light-dark(#37352f,#dddae6)}.callout[data-k=ex]{background:light-dark(#F6F3F9,#262036);color:light-dark(#3d2a4f,#e2d4f5)}.callout[data-k=meth]{background:light-dark(#FBECDD,#33230f);color:light-dark(#5a3110,#f7d1ad)}.callout[data-k=exo]{background:light-dark(#F4EEEE,#2c2322);color:light-dark(#4a3328,#ead8d0)}.callout[data-k=tip]{background:light-dark(#FAF1F5,#33182a);color:light-dark(#5a1f3d,#f6cde2)}
+.callout{border-radius:14px}
+.themes{display:flex;gap:8px;flex-wrap:wrap}
+.themes button{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:110px;padding:12px;border-radius:14px;border:1.5px solid var(--bd);background:var(--panel);cursor:pointer;font-weight:600}
+.themes button i{width:72px;height:44px;border-radius:10px;border:1px solid var(--bd);display:block}
+.themes button[aria-pressed=true]{border-color:var(--violet);box-shadow:0 0 0 4px light-dark(#ede5ff,#3b2a66)}
+h2[style*=Archivo]{font-family:'Plus Jakarta Sans',Inter,sans-serif!important;letter-spacing:-.02em}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 </head>
@@ -229,6 +370,7 @@ a.btn{text-decoration:none;color:inherit;display:inline-flex;align-items:center}
   <h1 class="app">Cahier <span>Malin</span> <small style="font:600 15px Inter;color:var(--muted)">× Notion</small></h1>
   <span class="chip" id="autoChip" role="status" hidden></span>
   <div class="stats" id="stats"></div>
+  <button class="themebtn" id="themeBtn" type="button" title="Thème clair ou sombre" aria-label="Changer de thème">🌗</button>
 </div>
 <nav class="nav" aria-label="Sections">
   <a href="#cours" data-v="cours">Mes cours</a>
@@ -1597,6 +1739,20 @@ async function autoRun(force){
 }
 async function notify(body){try{if(D.full&&(await D.desk.permissions.state('notifications'))==='granted')await D.desk.notification.show({body:body.slice(0,300)})}catch(e){}}
 
+/* ---------- apparence : clair / sombre / automatique ---------- */
+let theme=ls.get('cmn-theme')||'auto';
+const THEME_LBL={auto:'Automatique',light:'Clair',dark:'Sombre'},THEME_ICO={auto:'🌗',light:'☀️',dark:'🌙'};
+function applyTheme(){
+  const r=document.documentElement;
+  if(theme==='auto'){if(r.dataset.mine){delete r.dataset.mine;if(r.dataset.vt)r.dataset.theme=r.dataset.vt;else r.removeAttribute('data-theme')}}
+  else{if(!r.dataset.mine&&r.dataset.theme&&r.dataset.theme!==theme)r.dataset.vt=r.dataset.theme;r.dataset.mine='1';if(r.dataset.theme!==theme)r.dataset.theme=theme}
+  const b=$('#themeBtn');if(b){b.textContent=THEME_ICO[theme];b.title='Thème : '+THEME_LBL[theme]}
+}
+new MutationObserver(()=>{if(theme!=='auto'&&document.documentElement.dataset.theme!==theme)applyTheme()}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+function setTheme(t){theme=t;ls.set('cmn-theme',t);applyTheme();if(viewOf()==='set')renderSettings()}
+$('#themeBtn').addEventListener('click',()=>{const dark=theme==='dark'||(theme==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches&&document.documentElement.dataset.theme!=='light')||(theme==='auto'&&document.documentElement.dataset.theme==='dark');setTheme(dark?'light':'dark')});
+applyTheme();
+
 /* ---------- réglages ---------- */
 const dotOf=ok=>`<span class="dot ${ok===true?'ok':ok===false?'err':'wait'}"></span>`;
 function renderEng(){if(viewOf()==='set')renderSettings();setRecUi()}
@@ -1604,6 +1760,7 @@ function renderSettings(){
   const el=$('#v-set'),st=settings();
   const hours=[15,16,17,18,19,20,21].map(h=>`<option value="${h}" ${st.hour===h?'selected':''}>${h}:00</option>`).join('');
   let h=`<div class="wrap"><div class="head"><h1>Réglages</h1></div>`;
+  h+=`<div class="panel"><span class="label">Apparence</span><h3>Thème de l'app</h3><div class="themes" role="group" aria-label="Thème">${[['light','linear-gradient(135deg,#ffffff 50%,#f3edff 50%)'],['dark','linear-gradient(135deg,#1d192c 50%,#2e1c33 50%)'],['auto','linear-gradient(135deg,#ffffff 50%,#1d192c 50%)']].map(([k,bg])=>`<button type="button" data-set="theme" data-t="${k}" aria-pressed="${theme===k}"><i style="background:${bg}"></i>${THEME_ICO[k]} ${THEME_LBL[k]}</button>`).join('')}</div><p class="small muted" style="margin:10px 0 0">« Automatique » suit le réglage clair ou sombre de ton ordinateur. Le bouton ${THEME_ICO.auto} en haut à droite bascule aussi entre clair et sombre.</p></div>`;
   /* --- app de bureau --- */
   h+=`<div class="panel"><span class="label">Application Windows</span><h3>Enregistrer le cours au micro et ranger les fichiers sur le PC</h3>`;
   if(!D.desk||!D.desk.fs){
@@ -1667,6 +1824,7 @@ function renderSettings(){
 }
 $('#v-set').addEventListener('click',async e=>{
   const b=e.target.closest('[data-set]');if(!b)return;const a=b.dataset.set;
+  if(a==='theme'){setTheme(b.dataset.t);return}
   if(a==='install'){const r=await D.desk.install.request().catch(()=>'failed');if(r==='installed')toast('Installation lancée.','ok');else if(r!=='cancelled')toast('L\'installation n\'a pas pu se faire ici.','err');return}
   if(a==='grant'){try{const r=await D.desk.permissions.request(['full-access','notifications']);D.perm=r['full-access'];if(D.perm==='granted')await enableFull();else renderSettings()}catch(err){toast('Demande impossible : '+err.message,'err')}return}
   if(a==='manage'){D.desk.permissions.manage().then(async()=>{D.perm=await D.desk.permissions.state('full-access');if(D.perm==='granted')enableFull();else renderSettings()}).catch(()=>{});return}
