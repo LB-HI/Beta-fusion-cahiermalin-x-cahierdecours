@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Cahier Malin × Notion</title>
+<script type="application/json" id="claude-artifacts-manifest">{"permissions":["full-access","notifications"]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -83,7 +84,6 @@ ul.todo li[data-done="1"]{color:var(--muted);text-decoration:line-through}
 .tgl-b{padding-left:8px}
 .toc{margin:10px 0;padding:8px 12px;border-radius:6px;background:var(--hov);color:var(--muted);font-size:14px;user-select:none}
 #ed [data-bg]{border-radius:4px;padding-inline:6px}
-#ed [data-bg=gray_bg],.viewer [data-bg=gray_bg]{background:#F1F1EF}#ed [data-bg=brown_bg],.viewer [data-bg=brown_bg]{background:#F4EEEE}#ed [data-bg=orange_bg],.viewer [data-bg=orange_bg]{background:#FBECDD}#ed [data-bg=yellow_bg],.viewer [data-bg=yellow_bg]{background:#FBF3DB}#ed [data-bg=green_bg],.viewer [data-bg=green_bg]{background:#EDF3EC}#ed [data-bg=blue_bg],.viewer [data-bg=blue_bg]{background:#E7F3F8}#ed [data-bg=purple_bg],.viewer [data-bg=purple_bg]{background:#F6F3F9}#ed [data-bg=pink_bg],.viewer [data-bg=pink_bg]{background:#FAF1F5}#ed [data-bg=red_bg],.viewer [data-bg=red_bg]{background:#FDEBEC}
 #ed p[data-bg]{color:#2d2b27}
 .tb .h4{color:#D9730D;font-weight:800}
 .linkpop input{width:240px;min-height:40px;padding:6px 10px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);font-size:16px}
@@ -110,6 +110,7 @@ dialog textarea{width:100%;min-height:80px;font:16px ui-monospace,Menlo,monospac
 .chk{display:flex;gap:8px;align-items:center;font-size:14px;margin-top:8px}
 @media(max-width:600px){#ed{padding:20px 14px 60px 46px}.paper{background-image:linear-gradient(90deg,transparent 32px,var(--red) 32px,var(--red) 33.5px,transparent 33.5px),linear-gradient(var(--line2) 1px,transparent 1px),linear-gradient(var(--line) 1px,transparent 1px)}.field input{width:100%}.field{flex:1 1 100%}}
 @media(prefers-reduced-motion:no-preference){.btn.main{transition:transform .15s}.btn.main:active{transform:scale(.97)}}
+#ed [data-bg=gray_bg],.viewer [data-bg=gray_bg]{background:#F1F1EF}#ed [data-bg=brown_bg],.viewer [data-bg=brown_bg]{background:#F4EEEE}#ed [data-bg=orange_bg],.viewer [data-bg=orange_bg]{background:#FBECDD}#ed [data-bg=yellow_bg],.viewer [data-bg=yellow_bg]{background:#FBF3DB}#ed [data-bg=green_bg],.viewer [data-bg=green_bg]{background:#EDF3EC}#ed [data-bg=blue_bg],.viewer [data-bg=blue_bg]{background:#E7F3F8}#ed [data-bg=purple_bg],.viewer [data-bg=purple_bg]{background:#F6F3F9}#ed [data-bg=pink_bg],.viewer [data-bg=pink_bg]{background:#FAF1F5}#ed [data-bg=red_bg],.viewer [data-bg=red_bg]{background:#FDEBEC}
 /* ---------- fusion : bibliothèque, révisions, planning ---------- */
 .top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:16px max(4vw,14px) 0}
 .top h1.app{margin:0 auto 0 0}
@@ -185,9 +186,10 @@ dialog textarea{width:100%;min-height:80px;font:16px ui-monospace,Menlo,monospac
 .slot.cur{background:#FBF3DB;border-radius:8px;padding-inline:8px}
 .note{padding:10px 14px;border-radius:10px;background:#E7F3F8;color:#12384d;margin:10px 0}
 .note.night{background:#16181c;color:#fff}
+.note.warn{background:#FBECDD;color:#5a3110}
 .ask{display:flex;gap:8px}.ask input{flex:1;min-height:44px;padding:8px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);font-size:16px}
 .answer{white-space:pre-wrap;margin-top:10px}
-.micbtn[aria-pressed=true]{background:var(--red);border-color:var(--red);color:#fff}
+.micbtn[aria-pressed=true],.recbtn[aria-pressed=true]{background:var(--red);border-color:var(--red);color:#fff}
 #partial{font-style:italic;color:var(--muted)}
 .busy{text-align:center}.busy .spin{width:42px;height:42px;border-radius:50%;border:4px solid var(--hov);border-top-color:var(--red);margin:10px auto;animation:sp 1s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
@@ -203,25 +205,43 @@ dialog .row{justify-content:flex-end;margin-top:12px}
 #toast.err{background:#a12a26}#toast.ok{background:#2b5c3c}
 .ok{color:#448361}.err{color:var(--red)}
 a.btn{text-decoration:none;color:inherit;display:inline-flex;align-items:center}
-
+/* ---------- app de bureau : enregistrement, réglages, frise ---------- */
+#recInfo{font-size:14px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums;display:inline-flex;gap:8px;align-items:center}
+.meter{display:inline-block;width:60px;height:6px;border-radius:3px;background:var(--hov);overflow:hidden}.meter i{display:block;height:100%;width:0;background:#448361;transition:width .2s}
+.navrec{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--red);margin-left:7px}
+.timeline{position:relative;height:14px;border-radius:7px;background:var(--hov);margin:12px 0 4px}
+.timeline i{position:absolute;top:0;bottom:0;background:#337EA9;border-radius:7px}
+.timeline .now{position:absolute;top:-4px;bottom:-4px;width:3px;background:var(--red);border-radius:2px}
+.tl-scale{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;margin-bottom:4px}
+.set-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+.set-row input[type=text],.set-row select{min-height:44px;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);font-size:16px;color:var(--ink)}
+.set-row input[type=text]{flex:1 1 280px}
+.set-row label.lab{font-size:14px;color:var(--muted);min-width:150px}
+.log{white-space:pre-wrap;font:13px ui-monospace,Menlo,Consolas,monospace;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;max-height:200px;overflow:auto;margin:8px 0 0}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--muted);margin-right:6px;flex:none}.dot.ok{background:#448361}.dot.err{background:#D44C47}.dot.wait{background:#CB912F}
+.stat{display:flex;align-items:center;font-size:15px;margin:4px 0}
+#autoChip{background:#E7F3F8;color:#12384d;border-color:#c7e0ec}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 </head>
 <body>
 <div class="top">
   <h1 class="app">Cahier <span>Malin</span> <small style="font:600 15px Inter;color:var(--muted)">× Notion</small></h1>
+  <span class="chip" id="autoChip" role="status" hidden></span>
   <div class="stats" id="stats"></div>
 </div>
 <nav class="nav" aria-label="Sections">
   <a href="#cours" data-v="cours">Mes cours</a>
-  <a href="#ecrire" data-v="ecrire">Écrire un cours</a>
+  <a href="#ecrire" data-v="ecrire">Écrire un cours<span class="navrec" id="navrec" title="Enregistrement en cours" hidden></span></a>
   <a href="#planning" data-v="planning">Planning du soir</a>
+  <a href="#reglages" data-v="reglages">Réglages</a>
 </nav>
 <div id="storeNote" class="note" hidden style="margin:10px max(4vw,14px) 0"></div>
 
 <section class="view" id="v-cours"></section>
 <section class="view" id="v-course" hidden></section>
 <section class="view" id="v-plan" hidden></section>
+<section class="view" id="v-set" hidden></section>
 
 <section id="v-ecrire" hidden>
 <div class="meta">
@@ -304,11 +324,14 @@ a.btn{text-decoration:none;color:inherit;display:inline-flex;align-items:center}
     <button data-t="head">En-tête</button><button data-t="del">Suppr. tableau</button>
   </div>
 </div>
+
 <main><div class="paper"><div id="ed" contenteditable="true" spellcheck="true"></div></div></main>
 <div class="dock">
-  <div id="status" role="status">Écris ou dicte ton cours. Il est sauvegardé automatiquement.</div>
+  <div id="status" role="status">Écris, dicte ou enregistre ton cours. Il est sauvegardé automatiquement.</div>
   <span id="partial"></span>
-  <button class="btn micbtn" id="mic" aria-pressed="false" hidden>🎤 Dicter</button>
+  <span id="recInfo"></span>
+  <button class="btn recbtn" id="rec" aria-pressed="false">⏺ Enregistrer le cours</button>
+  <button class="btn micbtn" id="mic" aria-pressed="false">🎤 Dicter</button>
   <button class="btn" id="aiNotes">✨ Rédiger avec l'IA</button>
   <button class="btn" id="showMd">Voir le code</button>
   <button class="btn" id="done">Terminé</button>
@@ -358,6 +381,7 @@ a.btn{text-decoration:none;color:inherit;display:inline-flex;align-items:center}
   <textarea id="mdout" readonly></textarea>
   <div class="row"><button class="btn" id="mdCopy">Copier</button><button class="btn main" id="mdClose">Fermer</button></div>
 </dialog>
+<input type="file" id="importFile" accept=".json,application/json" hidden>
 <script>
 {
 const ROOT='4251a69e-e546-8118-b4bc-dc09dc14c9a7';
@@ -596,7 +620,7 @@ const toMd=()=>blocks(ed);
 
 
 /* ====================================================================
-   FUSION : Cahier de cours (éditeur + Notion) × Cahier Malin (IA, révisions, planning)
+   FUSION : Cahier de cours (éditeur + Notion) × Cahier Malin (IA, révisions, planning, app Windows)
    ==================================================================== */
 
 /* ---------- utilitaires ---------- */
@@ -673,24 +697,29 @@ let editing=null,FC=null,QZ=null;
 const cur=()=>S.courses.find(c=>c.id===S.current);
 const timers={};
 function saveCourse(c,soon){
-  c.updatedAt=Date.now();clearTimeout(timers[c.id]);
-  if(soon){timers[c.id]=setTimeout(()=>Store.put(c.id,c),1200);return}
+  c.updatedAt=Date.now();clearTimeout(timers[c.id]);queueExport(c);
+  if(soon){timers[c.id]=setTimeout(()=>{if(S.courses.includes(c))Store.put(c.id,c)},1200);return}
   return Store.put(c.id,c);
 }
+function saveProfile(){clearTimeout(timers.profile);timers.profile=setTimeout(()=>Store.put('profile',S.profile),1500)}
+const settings=()=>Object.assign({auto:true,hour:18},S.profile.settings||{});
 function addXp(n){
   const p=S.profile,t=today();
   if(p.lastDay!==t){p.streak=p.lastDay===addDays(t,-1)?(p.streak||0)+1:1;p.lastDay=t}
-  p.xp=(p.xp||0)+n;renderStats();
-  clearTimeout(timers.profile);timers.profile=setTimeout(()=>Store.put('profile',p),1500);
+  p.xp=(p.xp||0)+n;renderStats();saveProfile();
 }
 function renderStats(){
   const p=S.profile;
   $('#stats').innerHTML=`<span class="chip" title="Points gagnés en révisant">⭐ ${+p.xp||0} XP</span><span class="chip" title="Jours de révision d'affilée">🔥 Série ${+p.streak||0} j</span>`;
 }
 
+/* ---------- matières : gardées avec ton compte, et retrouvées depuis les cours ---------- */
+function mergeTargets(list){let added=false;for(const t of arr(list)){if(t&&t.id&&t.id!=='new'&&!targets.some(x=>x.id===t.id)){targets.push({id:t.id,name:String(t.name||'Matière'),parent:t.parent||undefined});added=true}}return added}
+function saveTargets(){ls.set('cahier-targets',targets);const extra=targets.filter(t=>!DEFAULTS.some(d=>d.id===t.id));S.profile.targets=extra;saveProfile()}
+
 /* ---------- éditeur : un cours = une page ---------- */
 let tSave;
-function save(){if(!editing)return;clearTimeout(tSave);tSave=setTimeout(syncEditing,900)}
+function save(){if(!editing)return;clearTimeout(tSave);tSave=setTimeout(syncEditing,900);updateRecInfo()}
 function syncEditing(){
   clearTimeout(tSave);
   const c=editing;if(!c)return;
@@ -703,23 +732,29 @@ function syncEditing(){
 ed.addEventListener('input',save);$('#title').addEventListener('input',save);$('#newName').addEventListener('input',save);
 function newCourse(){
   editing={id:newId(),kind:'course',title:'',subject:'',subjectId:$('#target').value||targets[0].id,createdAt:today(),status:'draft',html:'',raw:''};
-  ed.innerHTML='';$('#title').value='';setStatus('Nouveau cours. Écris ou dicte : tout est sauvegardé automatiquement.','');
+  ed.innerHTML='';$('#title').value='';setStatus('Nouveau cours. Écris, dicte ou enregistre : tout est sauvegardé automatiquement.','');updateRecInfo();
 }
 function openEditor(c){
   editing=c;ed.innerHTML=sanitize(c.html||'');$('#title').value=c.title||'';
+  if(c.subjectId&&c.subjectId!=='new'&&!targets.some(t=>t.id===c.subjectId)){mergeTargets([{id:c.subjectId,name:c.subject}]);saveTargets()}
   renderTargets(c.subjectId&&(c.subjectId==='new'||targets.some(t=>t.id===c.subjectId))?c.subjectId:targets[0].id);
   if(c.subjectId==='new')$('#newName').value=c.subject||'';
   mode=c.mode==='sub'?'sub':'append';document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.mode===mode));
-  rerenderEq();setStatus('Modification de « '+(c.title||'cours sans titre')+' ».','');
+  rerenderEq();setStatus('Modification de « '+(c.title||'cours sans titre')+' ».','');updateRecInfo();
 }
-$('#done').addEventListener('click',()=>{syncEditing();if(editing&&S.courses.includes(editing))location.hash='cours-'+editing.id;else location.hash='cours'});
+$('#done').addEventListener('click',()=>{
+  syncEditing();const c=editing;
+  if(R.on&&R.course===c)recToggle();
+  editing=null;
+  if(c&&S.courses.includes(c)){location.hash='cours-'+c.id}else location.hash='cours';
+});
 
 /* ---------- aperçu du code ---------- */
 $('#showMd').addEventListener('click',()=>{syncEditing();$('#mdout').value=editing?buildNotion(editing,{kit:!!editing.kit}).content:'';$('#dMd').showModal()});
 $('#mdClose').addEventListener('click',()=>$('#dMd').close());
 $('#mdCopy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('#mdout').value);$('#mdCopy').textContent='Copié ✓'}catch(e){$('#mdout').select();$('#mdCopy').textContent='Sélectionné : Ctrl+C'}setTimeout(()=>$('#mdCopy').textContent='Copier',2000)});
 
-/* ---------- dictée (remplace l'enregistrement micro de Cahier Malin) ---------- */
+/* ---------- dictée (navigateur et app Claude) ---------- */
 let dict=null;
 const dictMsg=r=>({not_granted:'Micro refusé : autorise la dictée dans les autorisations de l\'app, ou continue au clavier.',dismissed:'Dictée annulée.',unavailable:'La dictée n\'est pas disponible ici. Continue au clavier.',rate_limited:'La dictée est occupée. Réessaie dans un instant.',upstream_error:'Le micro ou la reconnaissance vocale a eu un problème. Réessaie.',hidden:'Dictée en pause : l\'app a été masquée. Relance-la.',time_limit:'Dictée arrêtée après 60 minutes. Relance-la pour continuer.',no_gesture:'Clique sur le bouton pour lancer la dictée.'})[r]||'La dictée s\'est arrêtée.';
 function caretToEnd(){const r=document.createRange();r.selectNodeContents(ed);r.collapse(false);const s=getSelection();s.removeAllRanges();s.addRange(r);savedRange=r.cloneRange()}
@@ -729,42 +764,64 @@ function insertDictation(text){
   if(!ed.textContent.trim())text=text.replace(/^\s+/,'');
   document.execCommand('insertText',false,text);save();
 }
+let dictT0=0;
 (window.claude?claude.use('dictation'):Promise.resolve(null)).then(d=>{
-  if(!d)return;dict=d;$('#mic').hidden=false;
+  if(!d)return;dict=d;
   d.onPartial(({text})=>{$('#partial').textContent=text?'🎤 '+text:''});
   d.onFinal(({text})=>insertDictation(text));
   d.onState(({state,reason})=>{
     const on=state!=='idle',b=$('#mic');b.setAttribute('aria-pressed',on);b.textContent=on?'⏹ Arrêter la dictée':'🎤 Dicter';
-    if(state==='listening')setStatus('Je t\'écoute… parle normalement, le texte arrive dans la feuille.','');
-    if(!on){$('#partial').textContent='';if(reason&&reason!=='stopped'&&reason!=='viewer_stopped')setStatus(dictMsg(reason),'err');if(reason==='unavailable')b.hidden=true}
+    if(state==='listening'){if(!dictT0)dictT0=Date.now();setStatus('Je t\'écoute… parle normalement, le texte arrive dans la feuille.','')}
+    if(!on){if(dictT0&&editing){editing.minutes=(editing.minutes||0)+(Date.now()-dictT0)/60000}dictT0=0;$('#partial').textContent='';if(reason&&reason!=='stopped'&&reason!=='viewer_stopped')setStatus(dictMsg(reason),'err');if(reason==='unavailable')dict=null}
+    updateRecInfo();
   });
 }).catch(()=>{});
 $('#mic').addEventListener('click',()=>{
-  if(!dict)return;
+  if(!dict){const m='La dictée ne marche que dans Chrome ou dans la fenêtre principale de l\'app Claude, ouverte depuis claude.ai. Pour enregistrer tout le cours avec Whisper, installe l\'app Windows : voir Réglages.';setStatus(m,'err');toast(m,'err');return}
   if(dict.active()){dict.stop().catch(()=>{});return}
   if(!savedRange||!ed.contains(savedRange.startContainer))caretToEnd();
   dict.start().catch(e=>{if(e&&e.code!=='stopped')setStatus(dictMsg(e&&e.code),'err')});
 });
 
-/* ---------- IA (Claude via ton compte, plus besoin de clé API) ---------- */
+/* ---------- IA : Claude via ton compte, ou IA locale gratuite (Ollama) dans l'app de bureau ---------- */
 const sampleP=window.claude?claude.use('sample'):Promise.resolve(null);
-let busyCtl=null;
+let busyCtl=null,aiBusy=false;
 $('#busyStop').addEventListener('click',()=>busyCtl&&busyCtl.abort());
-async function aiJson(prompt,title,steps){
-  const sample=await sampleP;if(!sample)throw{code:'no_ai'};
-  busyCtl=new AbortController();
-  $('#busyT').textContent=title;$('#busyS').textContent=steps[0];$('#busyC').textContent='Réflexion… (souvent 20 à 90 secondes)';$('#dBusy').showModal();
-  let i=0;const rot=setInterval(()=>{i=Math.min(i+1,steps.length-1);$('#busyS').textContent=steps[i]},9000);
-  try{return await sample.json(prompt,{signal:busyCtl.signal,cache:false,onText:({text})=>{$('#busyC').textContent='Écriture… '+text.length.toLocaleString('fr-FR')+' caractères'}})}
-  finally{clearInterval(rot);$('#dBusy').close()}
+const useLocalAi=()=>dev.ai==='ollama'&&D.full&&!!D.eng;
+async function aiAvailable(){if(dev.ai==='ollama')return useLocalAi()&&!!(D.ollama&&D.ollama.has_model);return !!(await sampleP)}
+/* l'IA renvoie parfois l'objet attendu dans une enveloppe ({"cours":{…}}) ou en texte */
+function unwrap(r){if(typeof r==='string')r=parseJson(r);if(r&&typeof r==='object'&&!Array.isArray(r)&&!r.sections&&!r.flashcards&&!r.points){const v=Object.values(r);if(v.length===1&&v[0]&&typeof v[0]==='object')return v[0]}return r}
+function parseJson(t){t=String(t||'');try{return JSON.parse(t)}catch(e){}const a=t.indexOf('{'),b=t.lastIndexOf('}');if(a>=0&&b>a){try{return JSON.parse(t.slice(a,b+1))}catch(e){}}return null}
+async function aiJson(prompt,title,steps,silent){
+  const local=useLocalAi();
+  if(dev.ai==='ollama'&&!local)throw{code:'engine'};
+  const sample=local?null:await sampleP;if(!local&&!sample)throw{code:'no_ai'};
+  const ctl=new AbortController();busyCtl=ctl;aiBusy=true;
+  const onText=({text})=>{const n=(text||'').length.toLocaleString('fr-FR');if(silent)setAuto('Rédaction auto : '+title.toLowerCase()+' · '+n+' caractères');else $('#busyC').textContent='Écriture… '+n+' caractères'};
+  let rot=null;
+  if(!silent){$('#busyT').textContent=title;$('#busyS').textContent=steps[0];$('#busyC').textContent=local?'L\'IA locale réfléchit… (plusieurs minutes sur ce PC)':'Réflexion… (souvent 20 à 90 secondes)';$('#dBusy').showModal();
+    let i=0;rot=setInterval(()=>{i=Math.min(i+1,steps.length-1);$('#busyS').textContent=steps[i]},9000)}
+  try{
+    if(local){const j=unwrap(parseJson(await localAi(prompt,{signal:ctl.signal,onText})));if(j==null)throw{code:'invalid_json'};return j}
+    let r;
+    try{r=await sample.json(prompt,{signal:ctl.signal,cache:false,onText})}
+    catch(e){if(!e||!['invalid_json','bad_shape','empty_completion'].includes(e.code))throw e;
+      const t=await sample(prompt+'\n\nRéponds UNIQUEMENT avec le JSON, sans texte autour ni balises de code.',{signal:ctl.signal,cache:false,onText});
+      r=parseJson(t&&t.text);if(r==null)throw{code:'invalid_json'}}
+    r=unwrap(r);
+    if(!S.profile.aiOk){S.profile.aiOk=true;saveProfile()}
+    return r;
+  }
+  finally{aiBusy=false;clearInterval(rot);if(!silent)$('#dBusy').close()}
 }
 function aiErr(e){
-  return({no_ai:'L\'IA n\'est disponible que lorsque l\'app est ouverte sur claude.ai.',not_granted:'Tu n\'as pas autorisé l\'app à utiliser Claude. Autorise-la dans ses permissions puis réessaie.',sampling_disabled:'Claude n\'est pas disponible pour ce compte.',capability_disabled:'L\'IA n\'est pas disponible dans cette fenêtre.',rate_limited:e&&e.reason==='usage_limit'?'Tu as atteint ta limite d\'utilisation de Claude. Réessaie plus tard : ton cours est sauvegardé.':'Trop de demandes d\'un coup. Réessaie dans une minute.',cancelled:'Rédaction arrêtée. Ton cours est intact.',invalid_json:'La réponse est arrivée incomplète. Relance.',prompt_too_large:'Le cours est trop long pour l\'IA. Sépare-le en deux.',refused:'Claude n\'a pas pu traiter ce texte. Vérifie le contenu puis réessaie.',empty_completion:'L\'IA n\'a rien répondu. Réessaie.',session_expired:'Reconnecte-toi à claude.ai puis réessaie.',bad_shape:'La réponse de l\'IA n\'avait pas la bonne forme. Relance.'})[e&&e.code]||'La rédaction a échoué. Ton cours est sauvegardé, réessaie dans un instant.';
+  if(e&&e.code==='local_ai')return String(e.message||'L\'IA locale a eu un problème.');
+  return({no_ai:'L\'IA n\'est disponible que lorsque l\'app est ouverte sur claude.ai.',engine:'L\'IA locale est choisie, mais le moteur de l\'app de bureau ne tourne pas : va dans Réglages.',not_granted:'Tu n\'as pas autorisé l\'app à utiliser Claude. Autorise-la dans ses permissions puis réessaie.',sampling_disabled:'Claude n\'est pas disponible pour ce compte.',capability_disabled:'L\'IA n\'est pas disponible dans cette fenêtre.',rate_limited:e&&e.reason==='usage_limit'?'Tu as atteint ta limite d\'utilisation de Claude. Réessaie plus tard : ton cours est sauvegardé.':'Trop de demandes d\'un coup. Réessaie dans une minute.',cancelled:'Rédaction arrêtée. Ton cours est intact.',invalid_json:'La réponse est arrivée incomplète. Relance.',prompt_too_large:'Le cours est trop long pour l\'IA. Sépare-le en deux.',refused:'Claude n\'a pas pu traiter ce texte. Vérifie le contenu puis réessaie.',empty_completion:'L\'IA n\'a rien répondu. Réessaie.',session_expired:'Reconnecte-toi à claude.ai puis réessaie.',bad_shape:'La réponse de l\'IA n\'avait pas la bonne forme. Relance.'})[e&&e.code]||'La rédaction a échoué. Ton cours est sauvegardé, réessaie dans un instant.';
 }
 function notesPrompt(c,text){
   return `Tu es l'assistant de prise de notes d'un élève francophone de BTS SIO. Nous sommes le ${longToday()} (${today()}).
-Voici les notes qu'il a prises pendant un cours${c.subject?' (matière : '+c.subject+')':''} : texte tapé et/ou DICTÉ à la voix, donc parfois brut.
-Il peut contenir du bruit : phrases inachevées, répétitions, mots mal reconnus, remarques hors sujet.
+Voici les notes qu'il a prises pendant un cours${c.subject?' (matière : '+c.subject+')':''} : texte tapé, DICTÉ ou ENREGISTRÉ au micro puis transcrit automatiquement, donc parfois brut.
+Il peut contenir du bruit : bavardages, phrases inachevées, répétitions, mots mal reconnus, remarques hors sujet.
 
 Ta mission :
 1. Garder tout ce qui relève du contenu du cours, et les informations utiles : devoirs, annonces, « ça tombera au contrôle », dates.
@@ -782,9 +839,24 @@ NOTES :
 ${text}
 """`;
 }
+/* cours très long avec l'IA locale : on relève d'abord chaque partie (comme Cahier Malin) */
+function splitText(t,size){const out=[];let i=0;while(i<t.length){let end=Math.min(t.length,i+size);if(end<t.length){const dot=t.lastIndexOf('. ',end);if(dot>i+size*0.6)end=dot+1}out.push(t.slice(i,end).trim());i=end}return out.filter(Boolean)}
+function partPrompt(c,part,i,n){
+  return `Voici la partie ${i+1} sur ${n} des notes d'un cours${c.subject?' de '+c.subject:''} (texte tapé, dicté ou transcrit automatiquement en classe). Nous sommes le ${today()}.
+Il contient du bruit (bavardages, remarques hors sujet, mots mal reconnus) : ignore-le.
+Relève TOUT ce que le professeur enseigne dans cette partie, sans rien oublier : chaque notion, explication, exemple, chiffre, nom, règle ou méthode, sous forme de points courts et précis en français (garde en langue étrangère le vocabulaire étudié, avec la traduction). Corrige les mots mal reconnus d'après le contexte.
+Ajoute les définitions, les dates ou formules, les consignes (devoirs, « ça tombera au contrôle ») et la date de contrôle si elle est annoncée (AAAA-MM-JJ, sinon null).
+Réponds uniquement en JSON : {"points":["…"],"definitions":[{"terme":"…","definition":"…"}],"dates_formules":[{"label":"…","valeur":"…"}],"consignes":["…"],"date_controle":null}
+
+NOTES (partie ${i+1}/${n}) :
+"""
+${part}
+"""`;
+}
 function kitPrompt(c){
   const days=c.examDate?diffDays(today(),c.examDate):null;
   const src=c.notes?'COURS (JSON) :\n'+JSON.stringify(c.notes):'COURS :\n"""\n'+plainOf(c.html).slice(0,60000)+'\n"""';
+  const local=useLocalAi();
   return `Tu crées un kit de révision motivant pour un élève francophone de BTS SIO, à partir du cours ci-dessous.${days!==null?' Le contrôle a lieu dans '+days+' jour(s).':''}
 Les révisions se font le soir entre 21h et 23h : contenus courts, percutants, ludiques, jamais ennuyeux. Utilise le tutoiement. Couvre TOUT le cours.
 
@@ -795,7 +867,7 @@ Réponds uniquement avec un objet JSON :
 "mnemos":[{"pour":"ce qu'il faut retenir","astuce":"phrase, acronyme ou image mentale"}],
 "feynman":["3 défis du type « Explique à un enfant de 10 ans pourquoi… »"],
 "carte_mentale":{"centre":"thème","branches":[{"titre":"…","feuilles":["2 à 4 mots-clés"]}]}}
-Quantités : 3 à 6 fiches, 12 à 24 flashcards, 10 à 15 questions de quiz (4 choix, "bonne" = index 0-3 de la bonne réponse, varie sa position, pièges plausibles), 2 à 5 mnémotechniques, 3 défis Feynman, 3 à 6 branches.
+Quantités : ${local?'3 à 4 fiches, 10 à 14 flashcards, 8 à 10 questions de quiz':'3 à 6 fiches, 12 à 24 flashcards, 10 à 15 questions de quiz'} (4 choix, "bonne" = index 0-3 de la bonne réponse, varie sa position, pièges plausibles), 2 à 5 mnémotechniques, 3 défis Feynman, 3 à 6 branches.
 
 ${src}`;
 }
@@ -810,40 +882,67 @@ function notesToHtml(n){
   if(arr(n.consignes).length)h+=`<h2>Consignes du prof</h2><ul class="todo">${arr(n.consignes).map(x=>`<li data-done="0">${fmt(x)}</li>`).join('')}</ul>`;
   return h+'<p><br></p>';
 }
+const STEPS_NOTES=['Tri entre le cours et le bruit…','Correction des mots mal entendus…','Structuration en parties…','Définitions et points à retenir…','Dernières finitions…'];
+async function draftNotes(c,text,silent){
+  if(useLocalAi()&&text.length>6000){
+    const parts=splitText(text,6000),acc={points:[],definitions:[],dates_formules:[],consignes:[],date:null};
+    for(let i=0;i<parts.length;i++){
+      const p=await aiJson(partPrompt(c,parts[i],i,parts.length),'Lecture du cours ('+(i+1)+'/'+parts.length+')',['Lecture de la partie '+(i+1)+' sur '+parts.length+'…'],silent);
+      if(!p||typeof p!=='object')continue;
+      acc.points.push(...arr(p.points));acc.definitions.push(...arr(p.definitions));acc.dates_formules.push(...arr(p.dates_formules));acc.consignes.push(...arr(p.consignes));
+      if(p.date_controle&&/^\d{4}-\d{2}-\d{2}$/.test(p.date_controle))acc.date=p.date_controle;
+    }
+    text=acc.points.map(x=>'- '+x).join('\n')+(acc.definitions.length?'\nDéfinitions : '+acc.definitions.map(d=>(d.terme||'')+' = '+(d.definition||'')).join(' ; '):'')+(acc.dates_formules.length?'\nDates/formules : '+acc.dates_formules.map(d=>(d.label||'')+' : '+(d.valeur||'')).join(' ; '):'')+(acc.consignes.length?'\nConsignes : '+acc.consignes.join(' ; '):'')+(acc.date?'\nDate du contrôle annoncée : '+acc.date:'');
+  }
+  return aiJson(notesPrompt(c,text.slice(0,120000)),'Rédaction du cours',STEPS_NOTES,silent);
+}
 let aiPending=null;
-$('#aiNotes').addEventListener('click',async()=>{
-  syncEditing();
-  const c=editing,text=ed.innerText.trim();
-  if(!c||text.length<40){setStatus('Écris ou dicte d\'abord un peu plus de contenu, puis lance la rédaction.','err');return}
+async function generateNotes(c,silent){
+  const text=(c===editing?ed.innerText:plainOf(c.html)).trim();
+  if(text.length<40){if(!silent){const m='Écris, dicte ou enregistre d\'abord un peu plus de contenu (quelques phrases), puis lance la rédaction.';setStatus(m,'err');toast(m,'err')}return false}
   try{
-    const n=await aiJson(notesPrompt(c,text.slice(0,120000)),'Rédaction du cours',['Tri entre le cours et le bruit…','Correction des mots mal entendus…','Structuration en parties…','Définitions et points à retenir…','Dernières finitions…']);
+    const n=await draftNotes(c,text,silent);
     if(!n||typeof n!=='object'||!arr(n.sections).length)throw{code:'bad_shape'};
-    aiPending={c,n,text};$('#dAi').showModal();
-  }catch(e){setStatus(aiErr(e),e&&e.code==='cancelled'?'':'err')}
-});
+    if(silent){const g=applyNotes(c,n,text,'replace');if(!c.examDate&&g&&/^\d{4}-\d{2}-\d{2}$/.test(g)&&g>today()){c.examDate=g;saveCourse(c)}return true}
+    aiPending={c,n,text};$('#dAi').showModal();return true;
+  }catch(e){if(!silent){const m=aiErr(e)+(e&&e.code&&!['cancelled','no_ai','engine'].includes(e.code)?' (code : '+e.code+')':'');setStatus(m,e&&e.code==='cancelled'?'':'err');if(!(e&&e.code==='cancelled'))toast(m,'err')}else S.autoErr=aiErr(e);return false}
+}
+function applyNotes(c,n,text,how){
+  c.raw=(c.raw?c.raw+'\n\n———\n\n':'')+text;c.notes=n;c.status='ready';
+  const html=notesToHtml(n);
+  if(c===editing){
+    if(!$('#title').value.trim())$('#title').value=plain(n.titre||'');
+    if(how==='replace')ed.innerHTML=html;else ed.insertAdjacentHTML('beforeend',html);
+    syncEditing();
+  }else{
+    if(!c.title)c.title=plain(n.titre||'');
+    c.html=how==='replace'?html:(c.html||'')+html;saveCourse(c);
+  }
+  addXp(20);
+  return n.date_controle_mentionnee;
+}
+$('#aiNotes').addEventListener('click',()=>{syncEditing();if(editing)generateNotes(editing,false)});
 function applyAi(how){
   $('#dAi').close();const p=aiPending;aiPending=null;if(!p||how==='cancel')return;
   const {c,n,text}=p;
-  c.raw=(c.raw?c.raw+'\n\n———\n\n':'')+text;c.notes=n;c.status='ready';
-  if(!$('#title').value.trim())$('#title').value=plain(n.titre||'');
-  const html=notesToHtml(n);
-  if(how==='replace')ed.innerHTML=html;else ed.insertAdjacentHTML('beforeend',html);
-  syncEditing();addXp(20);setStatus('Cours rédigé ✓ Relis-le et modifie ce que tu veux.','ok');
-  const g=n.date_controle_mentionnee;
+  const g=applyNotes(c,n,text,how);
+  setStatus('Cours rédigé ✓ Relis-le et modifie ce que tu veux.','ok');
   if(!c.examDate&&g&&/^\d{4}-\d{2}-\d{2}$/.test(g)&&g>today())askExam(c,g);
 }
 $('#aiReplace').addEventListener('click',()=>applyAi('replace'));
 $('#aiAppend').addEventListener('click',()=>applyAi('append'));
 $('#aiCancel').addEventListener('click',()=>applyAi('cancel'));
-async function generateKit(c){
-  if(!plainOf(c.html).trim()&&!c.notes){toast('Ce cours est vide : écris-le avant de préparer les révisions.','err');return}
+async function generateKit(c,silent){
+  if(!plainOf(c.html).trim()&&!c.notes){if(!silent)toast('Ce cours est vide : écris-le avant de préparer les révisions.','err');return false}
   try{
-    const k=await aiJson(kitPrompt(c),'Préparation des révisions',['Création des fiches de synthèse…','Fabrication des flashcards…','Écriture du quiz et de ses pièges…','Recherche de moyens mnémotechniques…','Dessin de la carte mentale…']);
+    const k=await aiJson(kitPrompt(c),'Préparation des révisions',['Création des fiches de synthèse…','Fabrication des flashcards…','Écriture du quiz et de ses pièges…','Recherche de moyens mnémotechniques…','Dessin de la carte mentale…'],silent);
     if(!k||typeof k!=='object'||!arr(k.flashcards).length)throw{code:'bad_shape'};
-    c.kit=k;c.cards={};FC=null;QZ=null;await saveCourse(c);
+    c.kit=k;c.cards={};if(FC&&FC.id===c.id)FC=null;if(QZ&&QZ.id===c.id)QZ=null;await saveCourse(c);
+    if(silent)return true;
     toast(c.examDate?'Fiches, quiz et planning prêts. Rendez-vous ce soir à 21:00.':'Fiches et quiz prêts.','ok');
     S.current=c.id;S.tab='fiches';if(location.hash!=='#cours-'+c.id)location.hash='cours-'+c.id;else renderCourse();
-  }catch(e){toast(aiErr(e),'err')}
+    return true;
+  }catch(e){if(!silent)toast(aiErr(e)+(e&&e.code&&!['cancelled','no_ai','engine'].includes(e.code)?' (code : '+e.code+')':''),'err');else S.autoErr=aiErr(e);return false}
 }
 
 /* ---------- date du contrôle ---------- */
@@ -904,7 +1003,7 @@ async function sendCourse(c,opts){
     const name=c.subject||'Nouvelle matière';
     const r=await mcp.callTool('Notion','notion-create-pages',{parent:{type:'page_id',page_id:ROOT},allow_async:false,pages:[{properties:{title:name},icon:'📚',content}]});
     const p=r.payload&&r.payload.pages&&r.payload.pages[0];
-    if(p&&p.id){targets.push({id:p.id,name});ls.set('cahier-targets',targets);c.subjectId=p.id;renderTargets($('#target').value==='new'?p.id:$('#target').value)}
+    if(p&&p.id){mergeTargets([{id:p.id,name}]);saveTargets();c.subjectId=p.id;if(editing===c)renderTargets(p.id)}
     url=p&&p.url;
   }else if(opts.sub){
     const r=await mcp.callTool('Notion','notion-create-pages',{parent:{type:'page_id',page_id:target},allow_async:false,pages:[{properties:{title},icon:'📝',content}]});
@@ -928,6 +1027,7 @@ $('#compile').addEventListener('click',async()=>{
 let sendC=null;
 function openSend(c){
   sendC=c;const s=$('#sendTarget');
+  if(c.subjectId&&c.subjectId!=='new'&&!targets.some(t=>t.id===c.subjectId)){mergeTargets([{id:c.subjectId,name:c.subject}]);saveTargets()}
   s.innerHTML=targets.map(t=>`<option value="${escH(t.id)}">${t.parent?'— ':''}${escH(t.name)}</option>`).join('')+(c.subjectId==='new'?`<option value="new">+ ${escH(c.subject||'Nouvelle matière')} (nouvelle)</option>`:'');
   s.value=c.subjectId&&[...s.options].some(o=>o.value===c.subjectId)?c.subjectId:targets[0].id;
   $('#sendSub').checked=c.mode==='sub';$('#sendKit').checked=!!c.kit;$('#sendKit').disabled=!c.kit;
@@ -981,6 +1081,12 @@ function slotRow(date,s,isToday){
     <label class="what" for="${escH(id)}"><strong>${escH(TASKS[s.type].label)}</strong><br><span class="small muted">${escH(s.c.subject||'')} · ${escH(s.c.title||'')} · ${escH(TASKS[s.type].how)}</span></label>
     <button class="btn go" data-open="${escH(s.c.id)}" data-tab="${TASKS[s.type].tab}">Y aller</button></div>`;
 }
+function timeline(slots,isToday){
+  const pct=m=>((m-21*60)/120*100).toFixed(2)+'%';
+  let h='<div class="timeline" aria-hidden="true">'+slots.map(s=>`<i style="left:${pct(mins(s.from))};width:calc(${pct(mins(s.to))} - ${pct(mins(s.from))})"></i>`).join('');
+  if(isToday&&nowMin()>=21*60&&nowMin()<=23*60)h+=`<span class="now" style="left:${pct(nowMin())}"></span>`;
+  return h+'</div><div class="tl-scale" aria-hidden="true"><span>21:00</span><span>21:30</span><span>22:00</span><span>22:30</span><span>23:00</span></div>';
+}
 function clockNote(){
   const n=new Date(),h=n.getHours(),m=nowMin(),hm=pad(h)+':'+pad(n.getMinutes());
   if(m>=23*60||h<5)return `<div class="note night">Il est ${hm}. Le planning s'arrête à 23:00 : pose tout et va dormir. C'est pendant le sommeil que ton cerveau range ce que tu as révisé.</div>`;
@@ -995,19 +1101,24 @@ function renderPlan(){
   h+=clockNote();
   plan.forEach(p=>{
     const all=p.slots.length,done=p.slots.filter(s=>isDone(p.date,s)).length;
-    h+=`<div class="evening"><div class="row between"><h3>${escH(dayLabel(p.date))} · 21:00 – 23:00</h3><span class="pill ${done===all?'ok':''}">${done}/${all} fait</span></div>${p.slots.map(s=>slotRow(p.date,s,p.date===today())).join('')}${p.overflow?`<p class="small muted">+ ${p.overflow} séance(s) reportée(s) : priorité aux contrôles les plus proches.</p>`:''}</div>`;
+    h+=`<div class="evening"><div class="row between"><h3>${escH(dayLabel(p.date))} · 21:00 – ${p.slots.length&&p.slots[p.slots.length-1].to}</h3><span class="pill ${done===all?'ok':''}">${done}/${all} fait</span></div>${timeline(p.slots,p.date===today())}${p.slots.map(s=>slotRow(p.date,s,p.date===today())).join('')}${p.overflow?`<p class="small muted">+ ${p.overflow} séance(s) reportée(s) : priorité aux contrôles les plus proches.</p>`:''}</div>`;
   });
   h+=`<div class="row"><button class="btn" id="ics" hidden>📅 Ajouter à mon agenda (.ics)</button></div></div>`;
   el.innerHTML=h;
-  dlP.then(d=>{const b=$('#ics');if(d&&b)b.hidden=false});
+  dlP.then(d=>{const b=$('#ics');if((d||D.full)&&b)b.hidden=false});
 }
 const dlP=window.claude?claude.use('downloads'):Promise.resolve(null);
+/* enregistrer un fichier : dans le dossier Mes cours (app de bureau) ou en téléchargement */
+async function saveFile(filename,data,dir){
+  if(D.full){try{const root=dir||dev.root;await D.desk.fs.mkdir(root,{recursive:true});const p=root+'/'+filename;await D.desk.fs.writeFile(p,data,'utf8');toast('Fichier enregistré : '+p.replace(/\//g,'\\'),'ok');return true}catch(e){toast('Enregistrement impossible : '+e.message,'err');return false}}
+  const d=await dlP;if(!d){toast('L\'enregistrement de fichiers n\'est pas disponible ici. Ouvre l\'app depuis claude.ai.','err');return false}
+  try{await d.save({filename,data});return true}catch(e){toast('Enregistrement annulé.','');return false}
+}
 async function exportIcs(){
-  const d=await dlP;if(!d)return;
   const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Cahier Malin Notion//FR','CALSCALE:GREGORIAN'],stamp=new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z';
   buildPlan().forEach(p=>p.slots.forEach(s=>{const dd=p.date.replace(/-/g,'');L.push('BEGIN:VEVENT',`UID:${p.date}-${s.c.id}-${s.type}@cahier-malin-notion`,`DTSTAMP:${stamp}`,`DTSTART:${dd}T${s.from.replace(':','')}00`,`DTEND:${dd}T${s.to.replace(':','')}00`,`SUMMARY:${(TASKS[s.type].label+' · '+(s.c.subject||s.c.title||'')).replace(/[,;\n]/g,' ')}`,`DESCRIPTION:${TASKS[s.type].how.replace(/[,;]/g,' ')}`,'BEGIN:VALARM','TRIGGER:-PT5M','ACTION:DISPLAY','DESCRIPTION:Révision dans 5 minutes','END:VALARM','END:VEVENT')}));
   L.push('END:VCALENDAR');
-  try{await d.save({filename:'planning-revisions.ics',data:L.join('\r\n')});toast('Planning exporté : ouvre le fichier pour l\'ajouter à ton agenda.','ok')}catch(e){toast('Export annulé.','')}
+  if(await saveFile('planning-revisions.ics',L.join('\r\n'))&&!D.full)toast('Planning exporté : ouvre le fichier pour l\'ajouter à ton agenda.','ok');
 }
 
 /* ---------- accueil : mes cours par matière ---------- */
@@ -1018,6 +1129,7 @@ function coursePills(c){
   if(c.examDate&&c.examDate>=today()){const k=diffDays(today(),c.examDate);p.push(`<span class="pill ${k<=2?'red':'warn'}">Contrôle ${k===0?'aujourd\'hui':k===1?'demain':'dans '+k+' j'}</span>`)}
   if(c.notion)p.push('<span class="pill">Dans Notion</span>');
   if(c.quizBest!=null)p.push(`<span class="pill">Quiz ${+c.quizBest} %</span>`);
+  if(c.audio)p.push('<span class="pill">🎙️ Audio</span>');
   return p.join('');
 }
 function renderHome(){
@@ -1025,8 +1137,9 @@ function renderHome(){
   const t=buildPlan().find(p=>p.date===today());
   if(t)h+=`<div class="tonight"><span class="label">Ce soir · 21:00 – 23:00</span><h2>${t.slots.length} séance${t.slots.length>1?'s':''} de 25 min</h2><ol>${t.slots.map(s=>`<li>${s.from} · ${escH(TASKS[s.type].label)} — ${escH(s.c.title||s.c.subject||'')}</li>`).join('')}</ol><p style="margin:10px 0 0"><a href="#planning">Voir le planning →</a></p></div>`;
   h+=`<div class="row between" style="margin:8px 0"><h2 style="font:800 26px Archivo,sans-serif;margin:0">Mes cours</h2><button class="btn main" data-new>+ Nouveau cours</button></div>`;
+  if(S.loaded&&S.courses.length)h+=`<p class="small muted" style="margin:4px 0 0">${escH(autoLine())}</p>`;
   if(!S.loaded)h+='<p class="muted">Chargement de tes cours…</p>';
-  else if(!S.courses.length)h+=`<div class="empty"><h2>Ton cahier est vide</h2><p class="muted">Au début du cours, ouvre « Écrire un cours » : tape ou dicte tes notes. À la fin, l'IA les remet au propre, prépare fiches, flashcards et quiz, et tu envoies le tout dans Notion.</p><div class="row"><button class="btn main" data-new>Écrire mon premier cours</button></div></div>`;
+  else if(!S.courses.length)h+=`<div class="empty"><h2>Ton cahier est vide</h2><p class="muted">Au début du cours, ouvre « Écrire un cours » : tape, dicte ou enregistre le cours. À la fin, l'IA les remet au propre, prépare fiches, flashcards et quiz, et tu envoies le tout dans Notion.</p><div class="row"><button class="btn main" data-new>Écrire mon premier cours</button><a class="btn" href="#reglages">Importer d'anciens cours</a></div></div>`;
   else{
     const g={};S.courses.slice().sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||'')||(b.updatedAt||0)-(a.updatedAt||0)).forEach(c=>{(g[c.subject||'Divers']=g[c.subject||'Divers']||[]).push(c)});
     Object.keys(g).sort((a,b)=>a.localeCompare(b,'fr')).forEach(k=>{
@@ -1044,7 +1157,7 @@ function renderCourse(){
   if(!c){el.innerHTML='<div class="wrap"><div class="empty"><h2>Cours introuvable</h2><div class="row"><a class="btn" href="#cours">Retour à mes cours</a></div></div></div>';return}
   const tabs=[['cours','Le cours'],['fiches','Fiches'],['flashcards','Flashcards'],['quiz','Quiz'],['methodes','Méthodes']];
   let h=`<div class="wrap"><a class="btn ghost" href="#cours" style="display:inline-flex;align-items:center">← Mes cours</a>
-  <div class="head"><span class="label">${escH(c.subject||'Matière à préciser')} · ${escH(niceDate(c.createdAt))}</span><h1>${escH(c.title||'Cours sans titre')}</h1><div class="pills">${coursePills(c)}</div>
+  <div class="head"><span class="label">${escH(c.subject||'Matière à préciser')} · ${escH(niceDate(c.createdAt))}${c.minutes?' · '+Math.round(c.minutes)+' min enregistrées':''}</span><h1>${escH(c.title||'Cours sans titre')}</h1><div class="pills">${coursePills(c)}</div>
   <div class="row"><button class="btn" data-edit>✏️ Modifier</button><button class="btn" data-send>📤 Envoyer vers Notion</button><button class="btn" data-exam>📅 ${c.examDate?'Changer la date du contrôle':'Date du contrôle'}</button>${c.kit?'<button class="btn" data-kit>🔄 Refaire les révisions</button>':''}</div></div>
   <div class="tabs" role="tablist">${tabs.map(([k,l])=>`<button role="tab" aria-selected="${S.tab===k}" class="${S.tab===k?'on':''}" data-tab="${k}">${l}</button>`).join('')}</div>`;
   if(S.tab==='cours')h+=courseView(c);
@@ -1059,6 +1172,7 @@ function courseView(c){
   let h=`<div class="paper read"><div class="viewer">${sanitize(c.html,true)||'<p class="muted">Ce cours est vide. Clique sur « Modifier » pour l\'écrire.</p>'}</div></div>`;
   h+=`<div class="panel"><h3>Une question sur ce cours ?</h3><form class="ask" id="askF"><input id="askQ" placeholder="ex. Je ne comprends pas la différence entre…" autocomplete="off" aria-label="Ta question"><button class="btn main">Demander</button></form><div class="answer" id="askA" role="status"></div></div>`;
   if(c.raw)h+=`<details class="panel"><summary>Texte d'origine (avant la rédaction par l'IA)</summary><div class="answer small" id="rawTxt"></div></details>`;
+  h+=`<div class="panel"><h3>Fichiers du cours</h3><p class="small muted" style="margin:0 0 10px">${D.full?'Rangés automatiquement dans <b>'+escH(folderLabel(c))+'</b> : cours.md, fiches et quiz.md, texte d\'origine et audio.':'Le cours en Markdown, pour le garder ou l\'ouvrir dans un autre logiciel.'}</p><div class="row">${D.full?'<button class="btn" data-folder>📂 Ouvrir le dossier</button>':''}<button class="btn" data-md="cours">⬇ cours.md</button>${c.kit?'<button class="btn" data-md="kit">⬇ fiches et quiz.md</button>':''}</div></div>`;
   h+=`<div class="row">${canSpeak&&c.notes?'<button class="btn" data-speak="resume">🔊 Écouter le résumé</button>':''}<button class="btn danger" data-del>Supprimer ce cours</button></div>`;
   return h;
 }
@@ -1103,18 +1217,18 @@ function methodsView(c){
 }
 
 /* ---------- navigation ---------- */
-function rerender(){const v=viewOf();if(v==='cours')renderHome();else if(v==='course')renderCourse();else if(v==='plan')renderPlan()}
-function viewOf(){const h=location.hash.slice(1);return h.startsWith('cours-')?'course':h==='ecrire'?'ecrire':h==='planning'?'plan':'cours'}
+function rerender(){const v=viewOf();if(v==='cours')renderHome();else if(v==='course')renderCourse();else if(v==='plan')renderPlan();else if(v==='set')renderSettings()}
+function viewOf(){const h=location.hash.slice(1);return h.startsWith('cours-')?'course':h==='ecrire'?'ecrire':h==='planning'?'plan':h==='reglages'?'set':'cours'}
 let lastView=null;
 function route(){
   const h=location.hash.slice(1),v=viewOf();
   if(lastView==='ecrire'&&v!=='ecrire'){syncEditing();if(dict&&dict.active())dict.stop().catch(()=>{})}
   if(v==='course'){const id=h.slice(6);if(S.current!==id){S.current=id;S.tab=S.pendingTab||'cours';FC=null;QZ=null}else if(S.pendingTab)S.tab=S.pendingTab;S.pendingTab=null}
-  ['cours','course','plan','ecrire'].forEach(x=>$('#v-'+x).hidden=x!==v);
-  const nv={cours:'cours',course:'cours',plan:'planning',ecrire:'ecrire'}[v];
+  ['cours','course','plan','ecrire','set'].forEach(x=>$('#v-'+x).hidden=x!==v);
+  const nv={cours:'cours',course:'cours',plan:'planning',ecrire:'ecrire',set:'reglages'}[v];
   document.querySelectorAll('.nav a').forEach(a=>a.classList.toggle('on',a.dataset.v===nv));
   if(v==='ecrire'&&!editing)newCourse();
-  lastView=v;rerender();scrollTo(0,0);
+  lastView=v;rerender();updateRecInfo();scrollTo(0,0);
 }
 addEventListener('hashchange',route);
 
@@ -1122,7 +1236,7 @@ addEventListener('hashchange',route);
 document.addEventListener('click',e=>{
   const t=e.target.closest('button,[data-open]');if(!t||t.closest('#tb'))return;
   const c=cur();
-  if(t.hasAttribute('data-new')){newCourse();location.hash='ecrire';return}
+  if(t.hasAttribute('data-new')){editing=null;newCourse();location.hash='ecrire';return}
   if(t.dataset.open){const id=t.dataset.open,tab=t.dataset.tab||'cours';if(location.hash==='#cours-'+id){S.tab=tab;renderCourse()}else{S.pendingTab=tab;location.hash='cours-'+id}return}
   if(t.id==='ics'){exportIcs();return}
   if(!c||viewOf()!=='course')return;
@@ -1131,6 +1245,8 @@ document.addEventListener('click',e=>{
   if(t.hasAttribute('data-send')){openSend(c);return}
   if(t.hasAttribute('data-exam')){askExam(c,c.notes&&c.notes.date_controle_mentionnee);return}
   if(t.hasAttribute('data-kit')){generateKit(c);return}
+  if(t.hasAttribute('data-folder')){openFolder(c);return}
+  if(t.dataset.md){if(D.full){exportCourse(c).then(()=>toast('Fichiers mis à jour dans '+folderLabel(c),'ok')).catch(e=>toast('Rangement impossible : '+e.message,'err'));return}const k=t.dataset.md==='kit';saveFile(k?'fiches et quiz.md':'cours.md',k?kitMd(c):courseMd(c));return}
   if(t.hasAttribute('data-flip')){FC.flip=!FC.flip;renderCourse();return}
   if(t.dataset.fc){fcAnswer(t.dataset.fc==='1');return}
   if(t.hasAttribute('data-fcr')){FC=null;renderCourse();return}
@@ -1141,7 +1257,7 @@ document.addEventListener('click',e=>{
     if(t.dataset.speak==='resume'&&c.notes)speak(plain(c.notes.resume)+'. '+arr(c.notes.a_retenir).map(plain).join('. '));
     else{const f=c.kit.fiches[+t.dataset.i];if(f)speak(plain(f.titre)+'. '+arr(f.essentiel).map(plain).join('. ')+'. '+plain(f.astuce||''))}return}
   if(t.hasAttribute('data-del')){
-    if(t.dataset.armed){Store.del(c.id);S.courses=S.courses.filter(x=>x!==c);if(editing===c)editing=null;toast('Cours supprimé.','');location.hash='cours';return}
+    if(t.dataset.armed){clearTimeout(timers[c.id]);clearTimeout(expT[c.id]);Store.del(c.id);trashFolder(c);S.courses=S.courses.filter(x=>x!==c);if(editing===c)editing=null;toast(D.full&&c.folder?'Cours supprimé. Son dossier est dans Mes cours\\_Corbeille.':'Cours supprimé.','');location.hash='cours';return}
     t.dataset.armed='1';t.textContent='Confirmer : supprimer définitivement';setTimeout(()=>{if(t.isConnected){delete t.dataset.armed;t.textContent='Supprimer ce cours'}},4000);
   }
 });
@@ -1156,10 +1272,12 @@ document.addEventListener('toggle',e=>{if(e.target.matches('details')&&e.target.
 document.addEventListener('submit',async e=>{
   if(e.target.id!=='askF')return;e.preventDefault();
   const q=$('#askQ').value.trim(),c=cur(),out=$('#askA');if(!q||!c)return;
-  const sample=await sampleP;if(!sample){out.textContent=aiErr({code:'no_ai'});return}
-  out.textContent='Réflexion…';
   const src=c.notes?JSON.stringify(c.notes):plainOf(c.html).slice(0,40000);
-  try{await sample(`Tu es un professeur bienveillant. Réponds en français, simplement et en moins de 150 mots, à la question d'un élève de BTS SIO sur ce cours. Donne un exemple concret si utile. Pas de markdown.\n\nCOURS :\n${src}\n\nQUESTION : ${q}`,{cache:false,onText:({text})=>{out.textContent=text}})}
+  const prompt=`Tu es un professeur bienveillant. Réponds en français, simplement et en moins de 150 mots, à la question d'un élève de BTS SIO sur ce cours. Donne un exemple concret si utile. Pas de markdown.\n\nCOURS :\n${src}\n\nQUESTION : ${q}`;
+  out.textContent='Réflexion…';
+  if(useLocalAi()){try{out.textContent=await localAi(prompt,{json:false,onText:({text})=>{out.textContent=text}})}catch(err){out.textContent=aiErr(err)}return}
+  const sample=await sampleP;if(!sample){out.textContent=aiErr({code:'no_ai'});return}
+  try{await sample(prompt,{cache:false,onText:({text})=>{out.textContent=text}})}
   catch(err){out.textContent=err&&err.text?err.text:aiErr(err)}
 });
 document.addEventListener('keydown',e=>{
@@ -1169,7 +1287,440 @@ document.addEventListener('keydown',e=>{
   else if(FC.flip&&e.key==='2')fcAnswer(true);
 });
 
-/* ---------- application de bureau ---------- */
+/* ====================================================================
+   APP DE BUREAU (Windows) : moteur local, enregistrement, dossiers
+   Installée depuis l'app Claude pour ordinateur, avec l'accès à l'ordinateur,
+   la page lance le moteur Python de Cahier Malin : micro + Whisper sans internet,
+   audio en Opus, IA locale Ollama, rangement dans Mes cours\<Matière>\<date - titre>.
+   ==================================================================== */
+const D={desk:null,full:false,perm:'unavailable',install:'unavailable',plat:'',home:'',data:'',eng:null,state:'off',buf:'',errLog:'',err:'',st:null,mics:null,model:null,ollama:null,pull:null,ai:{},log:''};
+const dev=Object.assign({py:'py -3.13',mic:'',model:'small',lang:'auto',root:'',ai:'claude'},ls.get('cmn-dev')||{});
+const saveDev=()=>ls.set('cmn-dev',dev);
+const R={on:false,finishing:false,course:null,sid:null,t0:0,level:0,backlog:0,folder:null,tick:null};
+const WMODELS={base:'Rapide',small:'Recommandé',medium:'Très précis, lent'};
+const WLANGS={auto:'Détection automatique',fr:'Français',en:'Anglais',es:'Espagnol',de:'Allemand',it:'Italien'};
+const winPath=p=>D.plat==='win32'?String(p).replace(/\//g,'\\'):String(p);
+
+function send(o){if(D.eng)D.eng.stdin.write(JSON.stringify(o)+'\n').catch(()=>{})}
+async function startEngine(){
+  if(!D.full||D.eng)return;
+  const src=$('#engine-py').textContent.replace(/^\s+/,'');
+  const dir=D.data+'/moteur',file=dir+'/moteur.py',fs=D.desk.fs;
+  D.state='starting';D.err='';D.errLog='';D.st=null;renderEng();
+  try{await fs.mkdir(dir,{recursive:true});let old='';try{old=await fs.readFile(file,'utf8')}catch(e){}if(old!==src)await fs.writeFile(file,src,'utf8')}
+  catch(e){D.state='error';D.err='Impossible d\'écrire le moteur : '+e.message;renderEng();return}
+  let p;
+  try{p=D.desk.childProcess.spawn(dev.py+' -X utf8 -u "'+winPath(file)+'"',[],{shell:true,cwd:dir})}
+  catch(e){D.state='error';D.err=e.message;renderEng();return}
+  D.eng=p;D.buf='';
+  const helloT=setTimeout(()=>{if(D.eng===p&&D.state==='starting'){D.state='error';D.err='Python ne répond pas. Vérifie la commande Python dans les réglages ci-dessous.';renderEng()}},20000);
+  p.stdout.on('data',ch=>{D.buf+=ch;let i;while((i=D.buf.indexOf('\n'))>=0){const line=D.buf.slice(0,i).trim();D.buf=D.buf.slice(i+1);if(line){let m=null;try{m=JSON.parse(line)}catch(e){}if(m){if(m.ev==='hello')clearTimeout(helloT);onEng(m)}}}});
+  p.stderr.on('data',ch=>{D.errLog=(D.errLog+ch).slice(-4000)});
+  p.on('error',e=>{clearTimeout(helloT);if(D.eng===p)D.eng=null;D.state='error';D.err=e.message;renderEng()});
+  p.on('exit',code=>{
+    clearTimeout(helloT);if(D.eng!==p)return;D.eng=null;D.state=code?'error':'off';
+    if(code)D.err='Python s\'est arrêté (code '+code+'). '+(/n'est pas reconnu|not recognized|introuvable|No suitable Python/i.test(D.errLog)?'Python 3.13 est introuvable : installe-le depuis python.org, ou indique le chemin de python.exe ci-dessous.':D.errLog.trim().split('\n').slice(-3).join(' '));
+    if(R.on||R.finishing){R.on=false;R.finishing=false;setRecUi();toast('Le moteur s\'est arrêté pendant l\'enregistrement. Ce qui a été transcrit est gardé.','err')}
+    for(const k in D.ai){D.ai[k].rej({code:'engine'})}D.ai={};
+    renderEng();
+  });
+}
+function stopEngine(){if(D.eng){const p=D.eng;D.eng=null;p.kill().catch(()=>{})}D.state='off';D.st=null}
+function onEng(m){
+  switch(m.ev){
+    case'hello':D.state='ready';D.st=m;D.err='';renderEng();
+      if(m.modules&&m.modules.sounddevice)send({cmd:'mics'});
+      if(m.modules&&m.modules.faster_whisper)send({cmd:'preload',model:dev.model,lang:dev.lang});
+      send({cmd:'ai_status'});
+      break;
+    case'mics':D.mics=m;renderEng();break;
+    case'model':D.model=m;renderEng();if(m.state==='error')toast(m.error,'err');updateRecInfo();break;
+    case'started':R.on=true;R.finishing=false;R.t0=Date.now();setRecUi();break;
+    case'rec_error':R.on=false;R.finishing=false;setRecUi();setStatus(m.error,'err');toast(m.error,'err');break;
+    case'level':R.level=m.level;R.backlog=m.backlog;updateRecInfo();break;
+    case'text':appendTranscript(m.text);break;
+    case'warn':toast(m.error,'err');break;
+    case'stopped':{const c=R.course;R.finishing=false;setRecUi();
+      if(R.folder){send({cmd:'finalize',folder:R.folder});setStatus('Transcription terminée ✓ L\'audio est en train d\'être rangé dans le dossier du cours.','ok')}
+      else setStatus('Transcription terminée ✓','ok');
+      if(c)saveCourse(c);break}
+    case'audio':if(m.ok){const c=R.course;if(c){c.audio=true;saveCourse(c)}toast('Audio rangé : '+m.path+(m.minutes?' ('+m.minutes+' min)':''),'ok')}else if(m.error&&!/Aucune prise/.test(m.error))toast('Audio non rangé : '+m.error,'err');renderEng();break;
+    case'discarded':D.st&&(D.st.leftover=0);renderEng();break;
+    case'ai_status':D.ollama=m;renderEng();break;
+    case'pull':D.pull=m;renderEng();break;
+    case'ai_delta':{const j=D.ai[m.id];if(j&&j.onText)j.onText({text:m.text});break}
+    case'ai_done':{const j=D.ai[m.id];if(!j)break;delete D.ai[m.id];if(m.error==='cancelled')j.rej({code:'cancelled'});else if(m.error&&!m.text)j.rej({code:'local_ai',message:m.error});else j.res(m.text||'');break}
+    case'error':D.log=(D.log+'\n'+(m.cmd||'')+' : '+m.error).slice(-2000);renderEng();break;
+  }
+}
+function localAi(prompt,o){
+  o=o||{};
+  return new Promise((res,rej)=>{
+    if(!D.eng)return rej({code:'engine'});
+    const id='a'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    D.ai[id]={res,rej,onText:o.onText};
+    send({cmd:'ai',id,prompt,json:o.json!==false,max_tokens:4096});
+    if(o.signal)o.signal.addEventListener('abort',()=>{send({cmd:'ai_cancel',id});if(D.ai[id]){delete D.ai[id];rej({code:'cancelled'})}});
+  });
+}
+
+/* ---------- enregistrement du cours au micro (moteur local) ---------- */
+function recReady(){return D.full&&D.state==='ready'&&D.st&&D.st.modules&&D.st.modules.sounddevice&&D.st.modules.faster_whisper&&D.st.modules.numpy}
+async function recToggle(){
+  if(R.finishing)return;
+  if(R.on){send({cmd:'stop'});if(R.course)R.course.minutes=(R.course.minutes||0)+(Date.now()-R.t0)/60000;R.on=false;R.finishing=true;setRecUi();setStatus('Fin de la transcription des dernières phrases…','');return}
+  if(!D.full){const m=D.desk&&D.desk.fs?'Autorise d\'abord l\'accès à l\'ordinateur dans Réglages pour enregistrer avec Whisper.':'L\'enregistrement du cours avec Whisper marche dans l\'app Windows installée (Réglages > Application Windows). Ici, utilise « 🎤 Dicter ».';setStatus(m,'err');toast(m,'err');return}
+  if(!recReady()){toast('L\'enregistrement n\'est pas prêt : va dans Réglages > Enregistrement du cours.','err');location.hash='reglages';return}
+  syncEditing();const c=editing;if(!c)return;
+  if(!S.courses.includes(c)){S.courses.push(c);saveCourse(c)}
+  if(R.course!==c){R.course=c;R.sid=Date.now().toString(36)}
+  try{R.folder=await courseFolder(c)}catch(e){R.folder=null}
+  R.finishing=false;send({cmd:'start',mic:dev.mic===''?null:+dev.mic,model:dev.model,lang:dev.lang});
+  setStatus(D.model&&D.model.state==='ready'?'J\'écoute le cours… le texte arrive dans la feuille toutes les 20 à 40 secondes.':'Préparation de la voix (le modèle Whisper se télécharge la première fois, environ 460 Mo)…','');
+}
+$('#rec').addEventListener('click',recToggle);
+function setRecUi(){
+  const b=$('#rec');
+  b.hidden=false;
+  b.setAttribute('aria-pressed',R.on);b.disabled=R.finishing;
+  b.textContent=R.on?'⏸ Pause':R.finishing?'Fin de la transcription…':(R.course&&R.course===editing&&R.course.minutes?'⏺ Reprendre l\'enregistrement':'⏺ Enregistrer le cours');
+  $('#navrec').hidden=!R.on;
+  clearInterval(R.tick);if(R.on)R.tick=setInterval(updateRecInfo,1000);
+  updateRecInfo();
+}
+function updateRecInfo(){
+  const el=$('#recInfo');if(!el)return;
+  if(viewOf()!=='ecrire'||!editing){el.textContent='';return}
+  const words=((ed.innerText||'').match(/\S+/g)||[]).length;
+  const live=R.on&&R.course===editing,dLive=dictT0>0;
+  let ms=(editing.minutes||0)*60000;if(live)ms+=Date.now()-R.t0;if(dLive)ms+=Date.now()-dictT0;
+  const s=Math.floor(ms/1000),tm=(s>=3600?Math.floor(s/3600)+':':'')+pad(Math.floor(s/60)%60)+':'+pad(s%60);
+  let h='';
+  if(ms>0||live||dLive)h+=`<span title="Durée enregistrée">⏱ ${tm}</span>`;
+  if(live)h+=`<span class="meter" title="Niveau du micro"><i style="width:${Math.round(Math.min(1,R.level)*100)}%"></i></span>`;
+  h+=`<span>${words.toLocaleString('fr-FR')} mot${words>1?'s':''}</span>`;
+  if(live&&R.backlog>45)h+=`<span title="Audio pas encore transcrit">⌛ ${R.backlog} s</span>`;
+  el.innerHTML=h;
+}
+function appendTranscript(text){
+  const c=R.course;text=String(text||'').trim();if(!c||!text)return;
+  const live=editing===c;let root;
+  if(live)root=ed;else{root=document.createElement('div');root.innerHTML=sanitize(c.html||'')}
+  let p=root.querySelector('p[data-rec="'+R.sid+'"]');
+  if(!p){p=document.createElement('p');p.dataset.rec=R.sid;root.append(p)}
+  const t=p.textContent.replace(/\u00a0/g,' ');p.textContent=(t&&!/\s$/.test(t)?t+' ':t)+text;
+  if(live)save();else{c.html=root.innerHTML;saveCourse(c,true)}
+  if(R.folder)D.desk.fs.appendFile(R.folder+'/transcription.txt',text+'\n','utf8').catch(()=>{});
+}
+
+/* ---------- rangement : Mes cours\<Matière>\<date - titre>\ ---------- */
+const cleanName=(s,fb)=>{s=String(s||'').replace(/[<>:"/\\|?*\x00-\x1f]/g,' ').replace(/\*\*/g,'').replace(/\s+/g,' ').trim().replace(/^[ .]+|[ .]+$/g,'').slice(0,70);return s||fb};
+const wantRel=c=>cleanName(c.subject,'Sans matière')+'/'+(c.createdAt||today())+' - '+cleanName(c.title,'Cours '+c.id.slice(-4));
+const folderLabel=c=>winPath('Mes cours/'+(c.folder||wantRel(c)));
+const folderQ={};
+function courseFolder(c){const p=(folderQ[c.id]||Promise.resolve()).then(()=>courseFolder1(c));folderQ[c.id]=p.catch(()=>{});return p}
+async function courseFolder1(c){
+  const fs=D.desk.fs,root=dev.root;let want=wantRel(c);
+  if(c.folder&&c.folder!==want&&await fs.exists(root+'/'+c.folder)){
+    if(await fs.exists(root+'/'+want))want+=' ('+c.id.slice(-4)+')';
+    if(c.folder!==want){
+      await fs.mkdir(root+'/'+want.split('/')[0],{recursive:true});
+      await fs.rename(root+'/'+c.folder,root+'/'+want);
+      const oldSub=root+'/'+c.folder.split('/')[0];try{if(!(await fs.readdir(oldSub)).length)await fs.rmdir(oldSub)}catch(e){}
+      if(R.course===c&&R.folder)R.folder=root+'/'+want;
+    }
+  }
+  await fs.mkdir(root+'/'+want,{recursive:true});
+  if(c.folder!==want){c.folder=want;if(S.courses.includes(c))Store.put(c.id,c)}
+  return root+'/'+want;
+}
+const expT={};
+function queueExport(c){if(!D.full||!c||c.kind!=='course')return;clearTimeout(expT[c.id]);expT[c.id]=setTimeout(()=>exportCourse(c).catch(()=>{}),3000)}
+async function exportCourse(c){
+  if(!S.courses.includes(c))return;
+  if(!plainOf(c.html).trim()&&!c.notes&&!c.kit&&!c.folder)return;
+  const dir=await courseFolder(c),fs=D.desk.fs;
+  await fs.writeFile(dir+'/cours.md',courseMd(c),'utf8');
+  if(c.kit)await fs.writeFile(dir+'/fiches et quiz.md',kitMd(c),'utf8');
+  if(c.raw)await fs.writeFile(dir+'/texte d\'origine.txt',c.raw,'utf8');
+}
+async function trashFolder(c){
+  if(!D.full||!c.folder)return;
+  const fs=D.desk.fs,root=dev.root,src=root+'/'+c.folder;
+  try{if(!await fs.exists(src))return;await fs.mkdir(root+'/_Corbeille',{recursive:true});let dst=root+'/_Corbeille/'+c.folder.split('/').pop();if(await fs.exists(dst))dst+=' '+Date.now().toString(36);await fs.rename(src,dst);
+    const sub=root+'/'+c.folder.split('/')[0];try{if(!(await fs.readdir(sub)).length)await fs.rmdir(sub)}catch(e){}}catch(e){}
+}
+async function openFolder(c){
+  try{const p=c?await courseFolder(c):dev.root;if(!c)await D.desk.fs.mkdir(p,{recursive:true});if(c)await exportCourse(c);await D.desk.shell.openPath(winPath(p))}
+  catch(e){toast('Impossible d\'ouvrir le dossier : '+e.message,'err')}
+}
+
+/* ---------- Markdown (cours.md, fiches et quiz.md) ---------- */
+function htmlToMd(h){
+  const root=document.createElement('div');root.innerHTML=sanitize(h||'');
+  const inlM=n=>[...n.childNodes].map(x=>{
+    if(x.nodeType===3)return x.nodeValue.replace(/\u200b/g,'').replace(/\u00a0/g,' ');
+    if(x.nodeType!==1)return'';
+    if(x.classList.contains('eq'))return '$'+x.dataset.tex+'$';
+    const t=x.tagName;if(t==='BR')return'  \n';
+    const s=inlM(x);if(!s.trim())return s;
+    if(t==='B'||t==='STRONG')return'**'+s+'**';if(t==='I'||t==='EM')return'*'+s+'*';if(t==='S'||t==='STRIKE')return'~~'+s+'~~';if(t==='CODE')return'`'+s+'`';
+    if(t==='A'){const u=x.getAttribute('href')||'';return /^(https?:|mailto:)/i.test(u)?'['+s+']('+u+')':s}
+    if(/^(P|DIV|LI)$/.test(t))return s+' ';
+    return s;
+  }).join('');
+  const listM=(el,d)=>[...el.children].map(li=>{
+    if(li.tagName!=='LI')return(li.tagName==='UL'||li.tagName==='OL')?listM(li,d+1):'';
+    let txt='';const subs=[];
+    for(const c of li.childNodes){if(c.nodeName==='UL'||c.nodeName==='OL')subs.push(c);else txt+=inlM({childNodes:[c]})}
+    const mk=el.classList.contains('todo')?(li.dataset.done==='1'?'- [x] ':'- [ ] '):el.tagName==='OL'?'1. ':'- ';
+    return '  '.repeat(d)+mk+txt.trim()+(subs.length?'\n'+subs.map(s=>listM(s,d+1)).join('\n'):'');
+  }).filter(Boolean).join('\n');
+  const out=[];
+  const BLK=/^(P|DIV|UL|OL|TABLE|H[1-6]|BLOCKQUOTE|PRE|HR)$/;
+  const blkM=n=>{let buf='';const flush=()=>{if(buf.trim())out.push(buf.trim());buf=''};
+    for(const x of n.childNodes){
+      if(x.nodeType===3){buf+=x.nodeValue;continue}
+      if(x.nodeType!==1)continue;
+      const t=x.tagName,k=x.classList;
+      if(!BLK.test(t)&&!k.contains('eqblock')){buf+=inlM({childNodes:[x]});continue}
+      flush();
+      if(/^H[1-6]$/.test(t)){const s=inlM(x).trim();if(s)out.push('#'.repeat(Math.min(+t[1]+1,6))+' '+s);continue}
+      if(k.contains('eqblock')){out.push('$$\n'+x.dataset.tex+'\n$$');continue}
+      if(k.contains('callout')){const [i]=CALL[x.dataset.k]||CALL.rq;const at=out.length;blkM(x);const inner=out.splice(at).join('\n\n');out.push(('> '+i+' '+inner).split('\n').join('\n> '));continue}
+      if(k.contains('codeblock')){const pre=x.querySelector('pre'),sel=x.querySelector('select');out.push('```'+(sel&&sel.value!=='plain text'?sel.value:'')+'\n'+(pre?pre.innerText||pre.textContent:'').replace(/\u200b/g,'').replace(/\n+$/,'')+'\n```');continue}
+      if(k.contains('cols')){x.querySelectorAll(':scope>.col').forEach(col=>blkM(col));continue}
+      if(k.contains('toggle')){const tt=x.querySelector('.tgl-t'),bd=x.querySelector('.tgl-b');out.push('### '+(tt?inlM(tt).trim():'Section'));if(bd)blkM(bd);continue}
+      if(k.contains('toc'))continue;
+      if(t==='UL'||t==='OL'){const l=listM(x,0);if(l)out.push(l);continue}
+      if(t==='TABLE'){const rows=[...x.rows].map(r=>'| '+[...r.cells].map(c=>inlM(c).replace(/\|/g,'\\|').replace(/\s*\n\s*/g,' ').trim()).join(' | ')+' |');if(rows.length){rows.splice(1,0,'|'+' --- |'.repeat(x.rows[0].cells.length));out.push(rows.join('\n'))}continue}
+      if(t==='HR'){out.push('---');continue}
+      if(t==='BLOCKQUOTE'){const s=inlM(x).trim();if(s)out.push('> '+s.split('\n').join('\n> '));continue}
+      if(t==='PRE'){out.push('```\n'+x.textContent+'\n```');continue}
+      if([...x.children].some(c=>BLK.test(c.tagName)||c.classList.contains('eqblock'))){blkM(x);continue}
+      const s=inlM(x).trim();if(s)out.push(s);
+    }
+    flush();
+  };
+  blkM(root);
+  return out.join('\n\n');
+}
+function courseMd(c){return `# ${plain(c.title||'Cours sans titre')}\n*${c.subject||''} · ${c.createdAt||''}*\n\n`+htmlToMd(c.html)+'\n'}
+function kitMd(c){
+  const k=c.kit||{},out=[`# Révisions : ${plain(c.title||'')}`,''];
+  arr(k.fiches).forEach((f,i)=>{out.push(`## Fiche ${i+1} : ${plain(f.titre)}`,...arr(f.essentiel).map(x=>'- '+x));if(f.astuce)out.push('','*Astuce : '+plain(f.astuce)+'*');out.push('')});
+  if(arr(k.flashcards).length)out.push('## Flashcards',...k.flashcards.map(x=>`- **${plain(x.q)}** → ${x.r||''}`),'');
+  if(arr(k.quiz).length){out.push('## Quiz');k.quiz.forEach((q,i)=>{out.push(`${i+1}. ${q.question||''}`);arr(q.choix).forEach((ch,j)=>out.push(`   - ${'ABCD'[j]||j}. ${ch}${j===Number(q.bonne)?'  ✔':''}`));if(q.explication)out.push(`   *${plain(q.explication)}*`)});out.push('')}
+  if(arr(k.mnemos).length)out.push('## Moyens mnémotechniques',...k.mnemos.map(m=>`- ${m.pour||''} : ${m.astuce||''}`),'');
+  if(arr(k.feynman).length)out.push('## Défis Feynman',...k.feynman.map(f=>'- '+f),'');
+  const mm=k.carte_mentale||{};if(mm.centre)out.push(`## Carte mentale : ${plain(mm.centre)}`,...arr(mm.branches).map(b=>`- **${plain(b.titre)}** : ${arr(b.feuilles).join(', ')}`));
+  return out.join('\n')+'\n';
+}
+
+/* ---------- sauvegarde : exporter / importer (aussi depuis l'ancienne appli Cahier Malin) ---------- */
+async function exportBackup(){
+  const data=JSON.stringify({app:'cahier-malin-notion',version:1,exportedAt:new Date().toISOString(),profile:S.profile,courses:S.courses},null,1);
+  if(await saveFile('cahier-malin-sauvegarde-'+today()+'.json',data)&&!D.full)toast('Sauvegarde exportée ('+S.courses.length+' cours).','ok');
+}
+function fromOldCourse(o,transcript){
+  const t=targets.find(x=>x.name.toLowerCase()===String(o.subject||'').toLowerCase());
+  const html=o.notes&&typeof o.notes==='object'?notesToHtml(o.notes):(transcript?'<p>'+escH(transcript)+'</p>':'');
+  return{id:String(o.id),kind:'course',title:o.title||'',subject:o.subject||'Divers',subjectId:t?t.id:'new',createdAt:o.createdAt||today(),status:o.notes?'ready':'draft',
+    html,raw:transcript||'',notes:o.notes||undefined,kit:o.kit||undefined,examDate:o.examDate||null,done:o.done||{},cards:o.cards||{},quizBest:o.quizBest??null,minutes:o.minutes||0,updatedAt:Date.now()};
+}
+function mergeCourses(list,profile){
+  let n=0;
+  for(const c of list){
+    if(!c||!c.id)continue;
+    const i=S.courses.findIndex(x=>x.id===c.id);
+    if(i>=0){if((S.courses[i].updatedAt||0)>=(c.updatedAt||0))continue;S.courses[i]=c}else S.courses.push(c);
+    Store.put(c.id,c);queueExport(c);n++;
+  }
+  if(profile&&(profile.xp||0)>(S.profile.xp||0)){S.profile.xp=profile.xp;S.profile.streak=profile.streak||S.profile.streak;S.profile.lastDay=profile.lastDay||S.profile.lastDay;saveProfile();renderStats()}
+  return n;
+}
+function importJson(j){
+  if(j&&j.app==='cahier-malin-notion'){mergeTargets(arr(j.profile&&j.profile.targets));saveTargets();return mergeCourses(arr(j.courses).filter(c=>c&&c.kind==='course'),j.profile)}
+  if(j&&j.app==='cahier-malin'&&j.data){const d=j.data;return mergeCourses(Object.keys(d).filter(k=>/^c_/.test(k)&&d[k]&&d[k].id).map(k=>fromOldCourse(d[k],d['t_'+k]&&d['t_'+k].text)),d.profile)}
+  throw new Error('format');
+}
+$('#importFile').addEventListener('change',async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{const n=importJson(JSON.parse(await f.text()));toast(n+' cours importé'+(n>1?'s':'')+'.','ok');rerender()}
+  catch(err){toast('Ce fichier n\'est pas une sauvegarde Cahier Malin.','err')}
+});
+async function importOldApp(){
+  const fs=D.desk.fs,dir=D.data+'/donnees';
+  try{
+    if(!await fs.exists(dir)){toast('Aucune donnée de l\'ancienne appli Cahier Malin sur ce PC.','err');return}
+    const files=(await fs.readdir(dir)).filter(x=>x.isFile&&/\.json$/.test(x.name)),data={};
+    for(const f of files){try{data[f.name.replace(/\.json$/,'')]=JSON.parse(await fs.readFile(dir+'/'+f.name,'utf8'))}catch(e){}}
+    const n=importJson({app:'cahier-malin',data});toast(n?n+' cours repris de l\'ancienne appli.':'Rien de nouveau à reprendre.','ok');rerender();
+  }catch(e){toast('Lecture impossible : '+e.message,'err')}
+}
+
+/* ---------- rédaction automatique chaque soir (Cahier Malin) ---------- */
+let autoBusy=false,autoRetry=0;
+const pendingC=()=>S.courses.filter(c=>c.kind==='course'&&(c.status!=='ready'||!c.kit)&&(plainOf(c.html).trim().length>=40||c.notes)&&!(c===editing&&viewOf()==='ecrire')&&!(R.course===c&&(R.on||R.finishing)));
+function setAuto(t){const ch=$('#autoChip');ch.hidden=!t;ch.textContent=t?'⚙ '+t:''}
+function autoLine(){
+  const st=settings(),n=pendingC().length;
+  if(!st.auto)return'Rédaction automatique désactivée (Réglages).';
+  return n?`${n} cours en attente : ${n>1?'ils seront rédigés':'il sera rédigé'} avec ${n>1?'leurs':'ses'} fiches et quiz automatiquement à partir de ${st.hour}:00, si l'app est ouverte (même réduite).`
+    :`Tous tes cours ont leurs fiches et leurs quiz. Les prochains seront préparés automatiquement chaque soir à partir de ${st.hour}:00.`;
+}
+async function autoRun(force){
+  const st=settings();
+  if(autoBusy||aiBusy||!S.loaded||(!force&&!st.auto))return;
+  if(!(await aiAvailable())){if(force)toast(dev.ai==='ollama'?'L\'IA locale n\'est pas prête (Réglages > IA de rédaction).':'L\'IA n\'est disponible que lorsque l\'app est ouverte depuis claude.ai.','err');return}
+  const todo=pendingC();
+  if(!force){
+    const late=todo.some(c=>(c.createdAt||'')<today());
+    if((new Date().getHours()<st.hour&&!late)||(S.profile.lastAuto===today()&&!late)||Date.now()<autoRetry)return;
+    if(dev.ai!=='ollama'&&!S.profile.aiOk)return;
+  }
+  autoRetry=Date.now()+30*60000;
+  if(!todo.length){S.profile.lastAuto=today();saveProfile();if(force)toast('Rien à rédiger : tous tes cours sont prêts.','ok');return}
+  autoBusy=true;S.autoErr='';let ok=0,fail=0;
+  for(const c of todo){
+    if(R.on&&R.course===c)continue;
+    setAuto('Rédaction auto : '+(c.title||'cours sans titre')+'…');
+    if(c.status!=='ready'){if(await generateNotes(c,true))ok++;else{fail++;continue}}
+    if(!c.kit){setAuto('Révisions auto : '+(c.title||'cours')+'…');if(await generateKit(c,true))ok++;else fail++}
+  }
+  autoBusy=false;setAuto('');
+  if(!fail){S.profile.lastAuto=today();saveProfile()}
+  const msg=ok?`Rédaction automatique : ${todo.length} cours préparé${todo.length>1?'s':''} avec fiches et quiz.`:'';
+  if(fail)toast('Rédaction automatique : '+fail+' échec(s). '+(S.autoErr||'')+' Nouvel essai dans 30 min.','err');else if(msg)toast(msg,'ok');
+  if(msg)notify(msg);
+  rerender();
+}
+async function notify(body){try{if(D.full&&(await D.desk.permissions.state('notifications'))==='granted')await D.desk.notification.show({body:body.slice(0,300)})}catch(e){}}
+
+/* ---------- réglages ---------- */
+const dotOf=ok=>`<span class="dot ${ok===true?'ok':ok===false?'err':'wait'}"></span>`;
+function renderEng(){if(viewOf()==='set')renderSettings();setRecUi()}
+function renderSettings(){
+  const el=$('#v-set'),st=settings();
+  const hours=[15,16,17,18,19,20,21].map(h=>`<option value="${h}" ${st.hour===h?'selected':''}>${h}:00</option>`).join('');
+  let h=`<div class="wrap"><div class="head"><h1>Réglages</h1></div>`;
+  /* --- app de bureau --- */
+  h+=`<div class="panel"><span class="label">Application Windows</span><h3>Enregistrer le cours au micro et ranger les fichiers sur le PC</h3>`;
+  if(!D.desk||!D.desk.fs){
+    h+=`<p class="small">L'enregistrement au micro avec Whisper (sans internet), l'audio en Opus, l'IA locale Ollama et le rangement dans <b>Mes cours\\Matière\\date - titre</b> marchent quand cette page est <b>installée comme application</b> depuis l'app Claude pour ordinateur.</p>`;
+    h+=D.install==='available'?`<div class="row"><button class="btn main" data-set="install">Installer comme application</button></div>`:D.install==='installed'?`<p class="small note">L'application est installée sur ce PC : ouvre « Cahier Malin × Notion » depuis le menu Démarrer pour enregistrer tes cours.</p>`:`<p class="small muted">Ouvre cette page dans l'app Claude pour Windows, puis choisis « Installer comme app ». Ici, tu peux déjà écrire, dicter, réviser et envoyer vers Notion.</p>`;
+  }else if(!D.full){
+    h+=`<p class="small">Pour lancer Whisper et écrire dans tes dossiers, l'application a besoin de l'accès à l'ordinateur. Windows te le demande une seule fois.</p><div class="row"><button class="btn main" data-set="grant">Autoriser l'accès à l'ordinateur</button>${D.perm==='denied'?'<button class="btn" data-set="manage">Ouvrir les permissions</button>':''}</div>${D.perm==='denied'?'<p class="small err">Accès refusé pour l\'instant : ouvre les permissions pour le rétablir.</p>':D.perm==='unavailable'?'<p class="small muted">Si le bouton ne donne rien, ferme et rouvre l\'application.</p>':''}`;
+  }else{
+    const m=D.st&&D.st.modules||{},okAll=m.numpy&&m.sounddevice&&m.faster_whisper;
+    h+=`<div class="stat">${dotOf(D.state==='ready'?true:D.state==='starting'?null:false)}Moteur local : ${D.state==='ready'?'prêt (Python '+escH(D.st.python)+')':D.state==='starting'?'démarrage…':'arrêté'}</div>`;
+    if(D.err)h+=`<p class="small err">${escH(D.err)}</p>`;
+    h+=`<div class="set-row"><label class="lab" for="sPy">Commande Python</label><input type="text" id="sPy" value="${escH(dev.py)}" spellcheck="false"><button class="btn" data-set="py">Relancer le moteur</button></div><p class="small muted" style="margin:0">Par défaut <code>py -3.13</code>. Tu peux mettre le chemin de l'environnement de Cahier Malin, ex. <code>"C:\\…\\cahier-malin\\.venv\\Scripts\\python.exe"</code>.</p>`;
+    if(D.state==='ready'){
+      h+=`<div style="margin-top:10px">${['numpy','sounddevice','faster_whisper','av'].map(k=>`<div class="stat">${dotOf(!!m[k])}${k==='faster_whisper'?'faster-whisper (transcription)':k==='av'?'av (audio en Opus)':k}</div>`).join('')}</div>`;
+      if(!okAll||!m.av)h+=`<div class="row" style="margin-top:8px"><button class="btn main" data-set="pip" ${D.pip?'disabled':''}>${D.pip?'Installation…':'Installer les modules manquants'}</button></div>`;
+      if(D.pipLog)h+=`<div class="log" id="pipLog">${escH(D.pipLog)}</div>`;
+    }
+    h+=`<div class="row" style="margin-top:10px"><button class="btn" data-set="importold">Reprendre les cours de l'ancienne appli Cahier Malin</button></div>`;
+  }
+  h+=`</div>`;
+  /* --- voix --- */
+  if(D.full&&D.state==='ready'){
+    const mics=D.mics&&D.mics.mics||[];
+    h+=`<div class="panel"><span class="label">Enregistrement du cours</span><h3>Micro et transcription Whisper</h3>
+    <div class="set-row"><label class="lab" for="sMic">Micro</label><select id="sMic"><option value="">Micro par défaut de Windows</option>${mics.map(x=>`<option value="${x.id}" ${String(dev.mic)===String(x.id)?'selected':''}>${escH(x.name)}${x.default?' (par défaut)':''}</option>`).join('')}</select><button class="btn" data-set="mics">Actualiser</button></div>
+    ${D.mics&&D.mics.error?`<p class="small err">${escH(D.mics.error)}</p>`:''}
+    <div class="set-row"><label class="lab" for="sModel">Modèle de voix</label><select id="sModel">${Object.entries(WMODELS).map(([k,v])=>`<option value="${k}" ${dev.model===k?'selected':''}>${k} · ${v}</option>`).join('')}</select><span class="small muted">${D.model?{loading:'chargement…',ready:'prêt ✓',error:'erreur',idle:''}[D.model.state]||'':''}</span></div>
+    <div class="set-row"><label class="lab" for="sLang">Langue</label><select id="sLang">${Object.entries(WLANGS).map(([k,v])=>`<option value="${k}" ${dev.lang===k?'selected':''}>${v}</option>`).join('')}</select></div>
+    <p class="small muted">La langue est détectée phrase par phrase en mode automatique (utile en cours d'anglais). Le modèle « small » (~460 Mo) se télécharge au premier enregistrement. Le PC ne se met pas en veille pendant l'enregistrement.</p>
+    ${D.st&&D.st.leftover?`<p class="note warn small">Un enregistrement précédent n'a pas été rangé (${D.st.leftover} prise(s) audio). <button class="btn" data-set="rescue">Le ranger dans Mes cours\\_Récupéré</button> <button class="btn ghost" data-set="discard">Le supprimer</button></p>`:''}</div>`;
+  }
+  /* --- IA --- */
+  const ol=D.ollama;
+  h+=`<div class="panel"><span class="label">IA de rédaction</span><h3>Qui remet le cours au propre ?</h3>
+  <label class="chk"><input type="radio" name="sAi" value="claude" ${dev.ai!=='ollama'?'checked':''}> Claude, avec ton compte (rapide, rien à installer)</label>
+  <label class="chk"><input type="radio" name="sAi" value="ollama" ${dev.ai==='ollama'?'checked':''} ${D.full?'':'disabled'}> IA locale gratuite sur ce PC (Ollama + gemma3:4b, sans internet, plus lente)</label>`;
+  if(D.full&&dev.ai==='ollama'){
+    if(!ol)h+=`<p class="small muted">Vérification d'Ollama…</p>`;
+    else if(!ol.installed)h+=`<p class="small err">Ollama n'est pas installé : télécharge-le sur ollama.com, puis clique sur « Vérifier ».</p>`;
+    else if(!ol.running)h+=`<p class="small err">Ollama est installé mais ne démarre pas.</p>`;
+    else if(!ol.has_model){const p=D.pull||ol.pull||{};h+=p.state==='pulling'?`<p class="small">Téléchargement du modèle : ${p.total?Math.round(p.done/p.total*100):0} %…</p>`:`<p class="small">Le modèle ${escH(ol.model)} (environ 3 Go) n'est pas encore téléchargé.</p><div class="row"><button class="btn main" data-set="pull">Télécharger le modèle</button></div>${p.state==='error'?`<p class="small err">${escH(p.error)}</p>`:''}`}
+    else h+=`<div class="stat">${dotOf(true)}Ollama prêt avec ${escH(ol.model)}</div>`;
+    h+=`<div class="row" style="margin-top:6px"><button class="btn" data-set="ollama">Vérifier</button></div>`;
+  }
+  h+=`</div>`;
+  /* --- automatique --- */
+  h+=`<div class="panel"><span class="label">Automatique</span><h3>Rédaction du soir</h3>
+  <label class="chk"><input type="checkbox" id="sAuto" ${st.auto?'checked':''}> Chaque soir, rédiger les cours en attente avec leurs fiches et leurs quiz</label>
+  <div class="set-row"><label class="lab" for="sHour">À partir de</label><select id="sHour">${hours}</select><button class="btn" data-set="autonow" ${autoBusy?'disabled':''}>Lancer maintenant</button></div>
+  <p class="small muted">${escH(autoLine())}${dev.ai!=='ollama'&&!S.profile.aiOk?' Lance une première rédaction à la main pour autoriser Claude : ensuite tout se fera seul.':''}</p></div>`;
+  /* --- dossiers --- */
+  if(D.full)h+=`<div class="panel"><span class="label">Rangement</span><h3>Dossier « Mes cours »</h3>
+  <div class="set-row"><input type="text" id="sRoot" value="${escH(winPath(dev.root))}" spellcheck="false" aria-label="Dossier Mes cours"><button class="btn" data-set="root">Enregistrer</button><button class="btn" data-set="openroot">📂 Ouvrir</button></div>
+  <p class="small muted">Chaque cours a son dossier <b>Matière\\date - titre</b> avec cours.md, fiches et quiz.md, transcription.txt, texte d'origine et l'enregistrement audio. Un cours supprimé va dans <b>_Corbeille</b>.</p></div>`;
+  /* --- sauvegarde --- */
+  h+=`<div class="panel"><span class="label">Sauvegarde</span><h3>Exporter ou importer tes cours</h3>
+  <p class="small muted">${Store.mode==='db'?'Tes cours sont déjà gardés avec ton compte Claude et suivent sur tous tes appareils.':'Tes cours sont gardés sur cet appareil seulement.'} Le fichier sert de copie de secours ; tu peux aussi importer une sauvegarde de l'ancienne appli Cahier Malin.</p>
+  <div class="row"><button class="btn" data-set="export">Exporter mes cours (${S.courses.length})</button><button class="btn" data-set="import">Importer un fichier</button></div></div>`;
+  el.innerHTML=h+'</div>';
+  const lg=$('#pipLog');if(lg)lg.scrollTop=lg.scrollHeight;
+}
+$('#v-set').addEventListener('click',async e=>{
+  const b=e.target.closest('[data-set]');if(!b)return;const a=b.dataset.set;
+  if(a==='install'){const r=await D.desk.install.request().catch(()=>'failed');if(r==='installed')toast('Installation lancée.','ok');else if(r!=='cancelled')toast('L\'installation n\'a pas pu se faire ici.','err');return}
+  if(a==='grant'){try{const r=await D.desk.permissions.request(['full-access','notifications']);D.perm=r['full-access'];if(D.perm==='granted')await enableFull();else renderSettings()}catch(err){toast('Demande impossible : '+err.message,'err')}return}
+  if(a==='manage'){D.desk.permissions.manage().then(async()=>{D.perm=await D.desk.permissions.state('full-access');if(D.perm==='granted')enableFull();else renderSettings()}).catch(()=>{});return}
+  if(a==='py'){dev.py=$('#sPy').value.trim()||'py -3.13';saveDev();stopEngine();await startEngine();return}
+  if(a==='pip')return pipInstall();
+  if(a==='mics'){send({cmd:'mics'});return}
+  if(a==='rescue'){send({cmd:'finalize',folder:dev.root+'/_Récupéré/'+today()});if(D.st)D.st.leftover=0;renderSettings();return}
+  if(a==='discard'){send({cmd:'discard'});return}
+  if(a==='pull'){send({cmd:'ai_pull'});D.pull={state:'pulling',done:0,total:0};renderSettings();return}
+  if(a==='ollama'){D.ollama=null;send({cmd:'ai_status'});renderSettings();return}
+  if(a==='autonow'){autoRun(true);return}
+  if(a==='root'){const v=$('#sRoot').value.trim().replace(/\\/g,'/').replace(/\/+$/,'');if(v){dev.root=v;saveDev();S.courses.forEach(c=>{delete c.folder;queueExport(c)});toast('Dossier enregistré. Les cours y sont rangés.','ok')}return}
+  if(a==='openroot'){openFolder(null);return}
+  if(a==='export'){exportBackup();return}
+  if(a==='import'){$('#importFile').click();return}
+  if(a==='importold'){importOldApp();return}
+});
+$('#v-set').addEventListener('change',e=>{
+  const t=e.target;
+  if(t.id==='sMic'){dev.mic=t.value;saveDev()}
+  else if(t.id==='sModel'){dev.model=t.value;saveDev();send({cmd:'preload',model:dev.model,lang:dev.lang})}
+  else if(t.id==='sLang'){dev.lang=t.value;saveDev()}
+  else if(t.name==='sAi'){dev.ai=t.value;saveDev();if(dev.ai==='ollama')send({cmd:'ai_status'});renderSettings()}
+  else if(t.id==='sAuto'||t.id==='sHour'){S.profile.settings=Object.assign(settings(),{auto:$('#sAuto').checked,hour:+$('#sHour').value});saveProfile();renderSettings()}
+});
+function pipInstall(){
+  if(D.pip)return;D.pip=true;D.pipLog='Installation de faster-whisper, sounddevice, numpy et av… (quelques minutes)\n';renderSettings();
+  const p=D.desk.childProcess.spawn(dev.py+' -m pip install --upgrade faster-whisper sounddevice numpy av',[],{shell:true});
+  const add=ch=>{D.pipLog=(D.pipLog+ch).slice(-6000);const lg=$('#pipLog');if(lg){lg.textContent=D.pipLog;lg.scrollTop=lg.scrollHeight}};
+  p.stdout.on('data',add);p.stderr.on('data',add);
+  p.on('error',e=>{D.pip=false;add('\n'+e.message);renderSettings()});
+  p.on('exit',code=>{D.pip=false;add(code?'\nL\'installation a échoué (code '+code+').':'\nModules installés ✓');stopEngine();startEngine()});
+}
+
+/* ---------- démarrage du mode application ---------- */
+async function enableFull(){
+  if(D.full)return;
+  try{D.home=(await D.desk.os.homedir()).replace(/\\/g,'/')}catch(e){D.perm='unavailable';renderEng();return}
+  D.full=true;
+  D.data=D.plat==='win32'?D.home+'/AppData/Local/Cahier Malin':D.home+'/.cahier-malin';
+  if(!dev.root){dev.root=D.home+'/Documents/Cahier Malin/Mes cours';saveDev()}
+  if(!dict)$('#mic').hidden=true;setRecUi();
+  await startEngine();
+  if(S.loaded)S.courses.forEach(queueExport);
+  rerender();
+}
+async function initDesk(d){
+  D.desk=d;
+  try{D.plat=await d.os.platform()}catch(e){}
+  try{D.perm=await d.permissions.state('full-access')}catch(e){D.perm='unavailable'}
+  if(D.perm==='granted')await enableFull();else renderEng();
+}
+
+/* ---------- application de bureau : icône, installation, mode Windows ---------- */
 function drawIcon(){
   const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');
   x.fillStyle='#16181c';x.beginPath();x.roundRect(8,8,240,240,52);x.fill();
@@ -1181,16 +1732,19 @@ function drawIcon(){
 }
 (window.claude?claude.use('desktop'):Promise.resolve(null)).then(async d=>{
   if(!d)return;
-  if(d.app&&d.app.dock){d.app.dock.setIcon(drawIcon()).catch(()=>{});return}
-  try{if(await d.install.state()!=='available')return;
+  if(d.fs){D.desk=d;if(d.app&&d.app.dock)d.app.dock.setIcon(drawIcon()).catch(()=>{});await initDesk(d);return}
+  D.desk=d;
+  try{D.install=await d.install.state()}catch(e){}
+  if(D.install==='available'){
     const b=document.createElement('button');b.className='btn';b.textContent='Installer comme app';$('.top').append(b);
-    b.addEventListener('click',async()=>{const r=await d.install.request().catch(()=>'failed');if(r==='installed'){b.remove();toast('Installation lancée.','ok')}else if(r!=='cancelled')toast('L\'installation n\'a pas pu se faire ici.','err')});
-  }catch(e){}
+    b.addEventListener('click',async()=>{const r=await d.install.request().catch(()=>'failed');if(r==='installed'){b.remove();toast('Installation lancée. Ouvre ensuite l\'app pour enregistrer tes cours au micro.','ok')}else if(r!=='cancelled')toast('L\'installation n\'a pas pu se faire ici.','err')});
+  }
+  if(viewOf()==='set')renderSettings();
 }).catch(()=>{});
 
 /* ---------- démarrage ---------- */
 (async function boot(){
-  const t=ls.get('cahier-targets');if(Array.isArray(t)&&t.length)targets=t;
+  const t=ls.get('cahier-targets');if(Array.isArray(t)&&t.length)mergeTargets(t);
   renderTargets(targets[0].id);renderStats();
   if(!location.hash)history.replaceState(null,'','#cours');
   route();
@@ -1200,14 +1754,610 @@ function drawIcon(){
   catch(e){Store.mode='local';all=Store.local();const n=$('#storeNote');n.hidden=false;n.textContent='Tes cours en ligne sont injoignables pour l\'instant : ce que tu fais maintenant est gardé sur cet appareil.'}
   S.courses=all.filter(x=>x.kind==='course');
   const p=all.find(x=>x.id==='profile');if(p)S.profile=Object.assign({kind:'profile'},p);
+  /* matières créées depuis l'app : retrouvées sur tous les appareils */
+  let added=mergeTargets(S.profile.targets);
+  added=mergeTargets(S.courses.filter(c=>c.subjectId&&c.subjectId!=='new').map(c=>({id:c.subjectId,name:c.subject})))||added;
+  if(added)saveTargets();
+  renderTargets(editing&&editing.subjectId&&targets.some(x=>x.id===editing.subjectId)?editing.subjectId:$('#target').value||targets[0].id);
   S.loaded=true;
   if(Store.mode==='local'&&$('#storeNote').hidden){const n=$('#storeNote');n.hidden=false;n.textContent='Sauvegarde sur cet appareil uniquement. Ouvre l\'app depuis claude.ai pour retrouver tes cours sur tous tes appareils.'}
   if(editing&&!S.courses.includes(editing)&&!ed.textContent.trim())editing=null;
   renderStats();if(viewOf()==='ecrire'&&!editing)newCourse();rerender();
   if(window.katex)rerenderEq();else addEventListener('load',rerenderEq);
+  if(D.full)S.courses.forEach(queueExport);
+  setTimeout(()=>autoRun(),8000);
+  setInterval(()=>{autoRun();if(viewOf()==='plan')renderPlan()},60000);
 })();
 
 }
+</script>
+
+<script type="text/plain" id="engine-py">
+"""Moteur local de Cahier Malin x Notion (lancé par l'app de bureau).
+
+Micro + transcription Whisper (faster-whisper) sur ce PC, sans internet,
+compression de l'audio en Opus, et IA locale gratuite (Ollama).
+Dialogue avec la page : une commande JSON par ligne sur l'entrée standard,
+un événement JSON par ligne sur la sortie standard.
+"""
+import json
+import os
+import re
+import sys
+import threading
+import time
+import traceback
+from pathlib import Path
+
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stdin.reconfigure(encoding="utf-8")
+except Exception:
+    pass
+
+DATA = Path(__file__).resolve().parent.parent
+REC_DIR = DATA / "enregistrement en cours"
+LOG = DATA / "journal.txt"
+SR = 16000
+OUT = threading.Lock()
+os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS_WARNING", "1")
+os.environ.setdefault("HF_HUB_DISABLE_TELEMETRY", "1")
+
+HALLUCINATIONS = re.compile(
+    r"(sous-titr|amara\.org|merci d'avoir regard|abonnez-vous|n'oubliez pas de vous abonner|merci de votre attention\.?$)",
+    re.IGNORECASE,
+)
+
+
+def emit(**o):
+    with OUT:
+        try:
+            sys.stdout.write(json.dumps(o, ensure_ascii=False) + "\n")
+            sys.stdout.flush()
+        except Exception:
+            pass
+
+
+def log(msg):
+    try:
+        DATA.mkdir(parents=True, exist_ok=True)
+        with LOG.open("a", encoding="utf-8") as f:
+            f.write(time.strftime("%Y-%m-%d %H:%M:%S ") + msg + "\n")
+    except OSError:
+        pass
+
+
+def keep_awake(on):
+    """Empêche Windows de se mettre en veille pendant un enregistrement ou une rédaction."""
+    try:
+        import ctypes
+        ES_CONTINUOUS, ES_SYSTEM_REQUIRED = 0x80000000, 0x00000001
+        ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS | (ES_SYSTEM_REQUIRED if on else 0))
+    except Exception:
+        pass
+
+
+def has(mod):
+    import importlib.util
+    try:
+        return importlib.util.find_spec(mod) is not None
+    except Exception:
+        return False
+
+
+def modules():
+    return {m: has(m) for m in ("numpy", "sounddevice", "faster_whisper", "av")}
+
+
+def leftover():
+    return len(list(REC_DIR.glob("prise_*.wav"))) if REC_DIR.exists() else 0
+
+
+def list_mics():
+    mics = []
+    try:
+        import sounddevice as sd
+        default = sd.default.device[0]
+        seen = set()
+        for i, d in enumerate(sd.query_devices()):
+            api = sd.query_hostapis(d["hostapi"])["name"]
+            if d["max_input_channels"] > 0 and (api == "MME" or os.name != "nt") and d["name"] not in seen:
+                seen.add(d["name"])
+                mics.append({"id": i, "name": d["name"], "default": i == default})
+    except Exception as e:
+        log("Liste des micros impossible : " + traceback.format_exc())
+        return {"mics": [], "error": str(e)}
+    return {"mics": mics}
+
+
+class Transcriber:
+    """Micro -> morceaux de 20 à 40 s coupés dans les silences -> Whisper."""
+
+    def __init__(self):
+        self.model_name = "small"
+        self.lang = "auto"
+        self.model = None
+        self.model_state = "idle"
+        self.lock = threading.Lock()
+        self.buf, self.buf_len = [], 0
+        self.tail = ""
+        self.level = 0.0
+        self.state = "idle"
+        self.stream = None
+        self.wav = None
+        self.worker = None
+        self.wake = threading.Event()
+
+    def configure(self, model=None, lang=None):
+        if lang:
+            self.lang = lang
+        if model and model != self.model_name:
+            self.model_name = model
+            if self.model_state != "loading":
+                self.model, self.model_state = None, "idle"
+
+    def load(self):
+        if self.model is not None or self.model_state == "loading":
+            return
+        self.model_state = "loading"
+        emit(ev="model", state="loading", model=self.model_name)
+        threading.Thread(target=self._load, daemon=True).start()
+
+    def _load(self):
+        try:
+            from faster_whisper import WhisperModel
+            threads = max(2, min(8, (os.cpu_count() or 4) // 2))
+            self.model = WhisperModel(self.model_name, device="cpu", compute_type="int8", cpu_threads=threads)
+            self.model_state = "ready"
+            emit(ev="model", state="ready", model=self.model_name)
+        except Exception as e:
+            self.model_state = "error"
+            log("Chargement du modèle impossible : " + traceback.format_exc())
+            emit(ev="model", state="error", model=self.model_name,
+                 error="Le modèle de voix n'a pas pu se charger (il faut internet la première fois). " + str(e))
+
+    def _callback(self, indata, frames, time_info, status):
+        import numpy as np
+        block = indata[:, 0].copy()
+        with self.lock:
+            self.buf.append(block)
+            self.buf_len += len(block)
+            if self.wav is not None:
+                try:
+                    self.wav.writeframes((np.clip(block, -1, 1) * 32767).astype(np.int16).tobytes())
+                except Exception:
+                    pass
+        self.level = float(min(1.0, np.sqrt(np.mean(block ** 2)) * 12))
+        if self.buf_len >= SR * 20:
+            self.wake.set()
+
+    def start(self, mic=None):
+        if self.state != "idle":
+            emit(ev="started")
+            return
+        try:
+            import sounddevice as sd
+        except Exception as e:
+            emit(ev="rec_error", error="Le module sounddevice manque : installe les modules dans Réglages. " + str(e))
+            return
+        if self.model_state == "error":
+            self.model_state = "idle"
+        self.load()
+        try:
+            self.stream = sd.InputStream(samplerate=SR, channels=1, dtype="float32", blocksize=SR // 10,
+                                         device=mic if mic not in (None, "", -1) else None, callback=self._callback)
+            self.stream.start()
+        except Exception as e:
+            log("Micro indisponible : " + traceback.format_exc())
+            self.stream = None
+            emit(ev="rec_error", error="Micro introuvable ou bloqué. Vérifie qu'un micro est branché et que Windows autorise "
+                 "l'accès au micro (Paramètres > Confidentialité > Microphone). Détail : " + str(e))
+            return
+        try:
+            import wave
+            REC_DIR.mkdir(parents=True, exist_ok=True)
+            w = wave.open(str(REC_DIR / time.strftime("prise_%Y%m%d_%H%M%S.wav")), "wb")
+            w.setnchannels(1)
+            w.setsampwidth(2)
+            w.setframerate(SR)
+            with self.lock:
+                self.wav = w
+        except Exception:
+            log("Fichier audio impossible : " + traceback.format_exc())
+        self.state = "listening"
+        keep_awake(True)
+        if not self.worker or not self.worker.is_alive():
+            self.worker = threading.Thread(target=self._work, daemon=True)
+            self.worker.start()
+        threading.Thread(target=self._meter, daemon=True).start()
+        emit(ev="started")
+
+    def _meter(self):
+        while self.state == "listening":
+            with self.lock:
+                backlog = self.buf_len / SR
+            emit(ev="level", level=round(self.level, 3), backlog=round(backlog))
+            time.sleep(0.3)
+
+    def stop(self):
+        if self.state != "listening":
+            if self.state == "idle":
+                emit(ev="stopped")
+            return
+        self.state = "finishing"
+        try:
+            if self.stream:
+                self.stream.stop()
+                self.stream.close()
+        except Exception:
+            pass
+        self.stream = None
+        with self.lock:
+            w, self.wav = self.wav, None
+        try:
+            if w:
+                w.close()
+        except Exception:
+            pass
+        self.level = 0.0
+        keep_awake(False)
+        self.wake.set()
+
+    def _take_chunk(self, final):
+        import numpy as np
+        with self.lock:
+            if not self.buf:
+                return None
+            audio = np.concatenate(self.buf)
+            if not final and len(audio) < SR * 20:
+                return None
+            cut = len(audio)
+            if not final and len(audio) > SR * 20:
+                lo, hi = SR * 15, min(len(audio), SR * 40)
+                win = SR // 4
+                seg = audio[lo:hi]
+                n = len(seg) // win
+                if n > 1:
+                    energy = (seg[: n * win].reshape(n, win) ** 2).mean(axis=1)
+                    cut = lo + int(np.argmin(energy)) * win + win // 2
+            chunk, rest = audio[:cut], audio[cut:]
+            self.buf = [rest] if len(rest) else []
+            self.buf_len = len(rest)
+            return chunk
+
+    def _work(self):
+        while True:
+            self.wake.wait(timeout=1.0)
+            self.wake.clear()
+            final = self.state == "finishing"
+            if self.model is None:
+                if self.model_state == "error" and final:
+                    with self.lock:
+                        self.buf, self.buf_len = [], 0
+                    self.state = "idle"
+                    emit(ev="stopped")
+                    return
+                continue
+            chunk = self._take_chunk(final)
+            if chunk is not None and len(chunk) > SR // 2:
+                self._transcribe(chunk)
+                self.wake.set()
+                continue
+            if final:
+                self.state = "idle"
+                emit(ev="stopped")
+                return
+
+    def _transcribe(self, audio):
+        try:
+            segments, _ = self.model.transcribe(
+                audio, beam_size=1, vad_filter=True,
+                vad_parameters={"min_silence_duration_ms": 500},
+                condition_on_previous_text=False,
+                language=None if self.lang == "auto" else self.lang,
+                multilingual=self.lang == "auto",
+                initial_prompt=self.tail[-200:] or None,
+            )
+            parts = []
+            for s in segments:
+                t = s.text.strip()
+                if not t or s.no_speech_prob > 0.7 or HALLUCINATIONS.search(t):
+                    continue
+                parts.append(t)
+            text = " ".join(parts).strip()
+            if text:
+                emit(ev="text", text=text)
+                self.tail = (self.tail + " " + text)[-400:]
+        except Exception:
+            log("Transcription impossible : " + traceback.format_exc())
+            emit(ev="warn", error="Un morceau n'a pas pu être transcrit (voir journal.txt).")
+
+
+def _write_opus(audio_i16, path):
+    """Compresse l'audio en Opus (environ 11 Mo par heure)."""
+    import numpy as np
+    try:
+        import av
+        with av.open(str(path), "w", format="ogg") as out:
+            st = out.add_stream("libopus", rate=SR)
+            st.layout = "mono"
+            st.bit_rate = 24000
+            fs = st.codec_context.frame_size or 320
+            pts = 0
+            for i in range(0, len(audio_i16), fs):
+                blk = audio_i16[i:i + fs]
+                if len(blk) < fs:
+                    blk = np.pad(blk, (0, fs - len(blk)))
+                fr = av.AudioFrame.from_ndarray(blk.reshape(1, -1), format="s16", layout="mono")
+                fr.sample_rate = SR
+                fr.pts = pts
+                pts += fs
+                for pk in st.encode(fr):
+                    out.mux(pk)
+            for pk in st.encode(None):
+                out.mux(pk)
+        return True
+    except Exception:
+        log("Compression Opus impossible, WAV utilisé : " + traceback.format_exc())
+        try:
+            Path(path).unlink(missing_ok=True)
+        except OSError:
+            pass
+        return False
+
+
+def _free(folder, stem, ext):
+    p = folder / f"{stem}{ext}"
+    n = 2
+    while p.exists():
+        p = folder / f"{stem} {n}{ext}"
+        n += 1
+    return p
+
+
+def finalize(folder):
+    """Assemble les prises du micro en un seul fichier audio dans le dossier du cours."""
+    import wave
+    import numpy as np
+    parts = sorted(REC_DIR.glob("prise_*.wav")) if REC_DIR.exists() else []
+    if not parts:
+        emit(ev="audio", ok=False, error="Aucune prise audio à ranger.")
+        return
+    try:
+        dest = Path(folder)
+        dest.mkdir(parents=True, exist_ok=True)
+        chunks = []
+        for p in parts:
+            try:
+                with wave.open(str(p)) as w:
+                    chunks.append(np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16))
+            except Exception:
+                log("Prise audio illisible : " + p.name)
+        audio = np.concatenate(chunks) if chunks else np.zeros(0, np.int16)
+        out = _free(dest, "enregistrement", ".ogg")
+        if not _write_opus(audio, out):
+            out = _free(dest, "enregistrement", ".wav")
+            with wave.open(str(out), "wb") as w:
+                w.setnchannels(1)
+                w.setsampwidth(2)
+                w.setframerate(SR)
+                w.writeframes(audio.tobytes())
+        for p in parts:
+            p.unlink(missing_ok=True)
+        emit(ev="audio", ok=True, path=str(out), minutes=round(len(audio) / SR / 60, 1))
+    except Exception as e:
+        log("Rangement de l'audio impossible : " + traceback.format_exc())
+        emit(ev="audio", ok=False, error=str(e))
+
+
+def discard():
+    for p in REC_DIR.glob("prise_*.wav") if REC_DIR.exists() else []:
+        try:
+            p.unlink()
+        except OSError:
+            pass
+    emit(ev="discarded")
+
+
+# ---------------- IA locale gratuite (Ollama) ----------------
+OLLAMA = "http://127.0.0.1:11434"
+AI_MODEL = "gemma3:4b"
+
+
+def _ollama_exe():
+    import shutil
+    exe = shutil.which("ollama")
+    if exe:
+        return exe
+    p = Path(os.environ.get("LOCALAPPDATA", "")) / "Programs" / "Ollama" / "ollama.exe"
+    return str(p) if p.exists() else None
+
+
+def _http(method, path, body=None, timeout=5):
+    import urllib.request
+    data = json.dumps(body).encode() if body is not None else None
+    req = urllib.request.Request(OLLAMA + path, data=data, method=method, headers={"Content-Type": "application/json"})
+    return urllib.request.urlopen(req, timeout=timeout)
+
+
+class LocalAI:
+    def __init__(self):
+        self.jobs = {}
+        self.pull = {"state": "idle", "done": 0, "total": 0, "error": ""}
+
+    def server_ok(self):
+        try:
+            with _http("GET", "/api/version", timeout=2) as r:
+                return r.status == 200
+        except Exception:
+            return False
+
+    def ensure_server(self):
+        if self.server_ok():
+            return True
+        exe = _ollama_exe()
+        if not exe:
+            return False
+        import subprocess
+        subprocess.Popen([exe, "serve"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                         creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        for _ in range(40):
+            time.sleep(0.5)
+            if self.server_ok():
+                return True
+        return False
+
+    def has_model(self):
+        try:
+            with _http("GET", "/api/tags") as r:
+                names = [m.get("name", "") for m in json.load(r).get("models", [])]
+            return any(n == AI_MODEL or n.startswith(AI_MODEL + "-") for n in names)
+        except Exception:
+            return False
+
+    def status(self):
+        installed = _ollama_exe() is not None
+        running = installed and self.ensure_server()
+        emit(ev="ai_status", installed=installed, running=running, model=AI_MODEL,
+             has_model=bool(running and self.has_model()), pull=dict(self.pull))
+
+    def start_pull(self):
+        if self.pull["state"] == "pulling":
+            return
+        self.pull = {"state": "pulling", "done": 0, "total": 0, "error": ""}
+        threading.Thread(target=self._pull, daemon=True).start()
+
+    def _pull(self):
+        last = 0
+        try:
+            if not self.ensure_server():
+                raise RuntimeError("Ollama n'est pas installé ou ne démarre pas.")
+            with _http("POST", "/api/pull", {"model": AI_MODEL, "stream": True}, timeout=3600) as r:
+                for line in r:
+                    if not line.strip():
+                        continue
+                    ev = json.loads(line)
+                    if ev.get("error"):
+                        raise RuntimeError(ev["error"])
+                    if ev.get("total"):
+                        self.pull["total"], self.pull["done"] = ev["total"], ev.get("completed", 0)
+                    if time.time() - last > 1:
+                        last = time.time()
+                        emit(ev="pull", **self.pull)
+            self.pull["state"] = "done"
+        except Exception as e:
+            log("Téléchargement du modèle impossible : " + traceback.format_exc())
+            self.pull.update(state="error", error=str(e))
+        emit(ev="pull", **self.pull)
+        self.status()
+
+    def start(self, job_id, prompt, as_json=True, max_tokens=4096):
+        job = {"cancel": False}
+        self.jobs[job_id] = job
+        threading.Thread(target=self._run, args=(job_id, job, prompt, as_json, max_tokens), daemon=True).start()
+
+    def _run(self, job_id, job, prompt, as_json, max_tokens):
+        if not self.ensure_server():
+            emit(ev="ai_done", id=job_id, error="L'IA locale (Ollama) n'est pas lancée. Vérifie qu'Ollama est installé.")
+            return
+        if not self.has_model():
+            emit(ev="ai_done", id=job_id, error="Le modèle d'IA n'est pas encore téléchargé : Réglages > IA de rédaction.")
+            return
+        need = len(prompt) // 3 + max_tokens + 512
+        num_ctx = min(32768, max(4096, (need // 4096 + 1) * 4096))
+        body = {"model": AI_MODEL, "messages": [{"role": "user", "content": prompt}], "stream": True, "keep_alive": "10m",
+                "options": {"num_ctx": num_ctx, "temperature": 0.3, "num_predict": max_tokens, "repeat_penalty": 1.15}}
+        if as_json:
+            body["format"] = "json"
+        keep_awake(True)
+        text, err, last = "", "", 0
+        try:
+            with _http("POST", "/api/chat", body, timeout=1800) as r:
+                for line in r:
+                    if job["cancel"]:
+                        break
+                    if not line.strip():
+                        continue
+                    ev = json.loads(line)
+                    if ev.get("error"):
+                        raise RuntimeError(ev["error"])
+                    text += (ev.get("message") or {}).get("content", "")
+                    if time.time() - last > 0.7:
+                        last = time.time()
+                        emit(ev="ai_delta", id=job_id, text=text)
+                    if ev.get("done"):
+                        if ev.get("done_reason") == "length":
+                            err = "La réponse a été coupée (cours très long)."
+                        break
+        except Exception as e:
+            if not job["cancel"]:
+                log("IA locale : " + traceback.format_exc())
+                err = "L'IA locale s'est arrêtée : " + str(e)
+        keep_awake(False)
+        self.jobs.pop(job_id, None)
+        if job["cancel"]:
+            emit(ev="ai_done", id=job_id, error="cancelled")
+        else:
+            emit(ev="ai_done", id=job_id, text=text, error=err)
+
+    def cancel(self, job_id):
+        job = self.jobs.get(job_id)
+        if job:
+            job["cancel"] = True
+
+
+def main():
+    tr, ai = Transcriber(), LocalAI()
+    emit(ev="hello", python=sys.version.split()[0], exe=sys.executable, modules=modules(), leftover=leftover())
+    for line in sys.stdin:
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            m = json.loads(line)
+        except ValueError:
+            continue
+        c = m.get("cmd")
+        try:
+            if c == "status":
+                emit(ev="hello", python=sys.version.split()[0], exe=sys.executable, modules=modules(), leftover=leftover())
+            elif c == "mics":
+                emit(ev="mics", **list_mics())
+            elif c == "preload":
+                tr.configure(m.get("model"), m.get("lang"))
+                if has("faster_whisper"):
+                    tr.load()
+            elif c == "start":
+                tr.configure(m.get("model"), m.get("lang"))
+                tr.start(m.get("mic"))
+            elif c == "stop":
+                tr.stop()
+            elif c == "finalize":
+                threading.Thread(target=finalize, args=(m["folder"],), daemon=True).start()
+            elif c == "discard":
+                discard()
+            elif c == "ai_status":
+                threading.Thread(target=ai.status, daemon=True).start()
+            elif c == "ai_pull":
+                ai.start_pull()
+            elif c == "ai":
+                ai.start(m["id"], m["prompt"], m.get("json", True), int(m.get("max_tokens") or 4096))
+            elif c == "ai_cancel":
+                ai.cancel(m.get("id"))
+            elif c == "ping":
+                emit(ev="pong")
+        except Exception as e:
+            log("Commande " + str(c) + " : " + traceback.format_exc())
+            emit(ev="error", cmd=c, error=str(e))
+    tr.stop()
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception:
+        log("Erreur du moteur : " + traceback.format_exc())
+        raise
 </script>
 </body>
 </html>

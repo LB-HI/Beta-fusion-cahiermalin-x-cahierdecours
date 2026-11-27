@@ -19,7 +19,8 @@ Les deux projets d'origine ne sont pas modifiés : cette fusion est une app à p
 - Listes, cases à cocher, indentation, tableaux, 2 ou 3 colonnes, sections dépliantes, blocs de code, sommaire.
 - Équations LaTeX (KaTeX) et palette de symboles.
 - Encadrés : Correction, À retenir, Attention, Définition, Exemple, Méthode, Exercice, Astuce, Remarque.
-- 🎤 **Dictée** : la voix est écrite directement dans la feuille. Elle remplace l'enregistrement micro de Cahier Malin.
+- 🎤 **Dictée** : la voix est écrite directement dans la feuille (navigateur et app Claude).
+- ⏺ **Enregistrer le cours** (app Windows) : micro + Whisper sur le PC, sans internet, langue détectée phrase par phrase ; chrono, niveau du micro et compteur de mots.
 - ✨ **Rédiger avec l'IA** : les notes brutes deviennent un cours structuré (résumé, à retenir, parties, définitions, formules, consignes du prof). Le texte d'origine est conservé.
 
 **Réviser** (Cahier Malin)
@@ -30,20 +31,41 @@ Les deux projets d'origine ne sont pas modifiés : cette fusion est une app à p
 
 **Planning du soir** (Cahier Malin)
 - Séances de 25 min entre 21:00 et 23:00 jusqu'à la date du contrôle (répétition espacée J+1, J+3, J+6…).
+- Frise de la soirée, fin à 22:25 la veille d'un contrôle.
 - Export vers l'agenda (`.ics`).
+
+**Automatique** (Cahier Malin)
+- Chaque soir à partir de 18:00 (heure réglable), les cours en attente sont rédigés avec leurs fiches et leurs quiz, si l'app est ouverte ; notification Windows à la fin.
+
+**Rangement et sauvegarde**
+- App Windows : `Mes cours\<Matière>\<date - titre>\` avec l'audio (Opus), `transcription.txt`, `cours.md`, `fiches et quiz.md`, le texte d'origine ; `_Corbeille` pour les cours supprimés.
+- Navigateur : téléchargement de `cours.md` et `fiches et quiz.md`.
+- Export / import JSON, et reprise des cours de l'ancienne appli Cahier Malin.
+
+**Réglages** : micro, modèle de voix, langue, commande Python, installation des modules, IA (Claude ou Ollama), rédaction du soir, dossier « Mes cours », sauvegarde.
 
 **Notion**
 - Envoi du cours à la suite de la page de la matière, dans une sous-page, ou dans une nouvelle matière.
 - Option : ajouter les révisions (fiches, flashcards, quiz, méthodes) dans une section dépliante « 🧠 Révisions ».
 
-## Différences avec Cahier Malin (version Windows)
+## Navigateur ou application Windows
 
-| Cahier Malin | Fusion |
-|---|---|
-| Enregistrement + Whisper hors ligne | Dictée de claude.ai (Chrome, Edge ou app Claude pour ordinateur) |
-| IA locale Ollama, ou clé API Claude | IA via le compte claude.ai de l'utilisateur, sans clé |
-| Données dans `%LOCALAPPDATA%` et `Mes cours\` | Données sur le compte claude.ai (tous les appareils), sinon dans le navigateur |
-| Rédaction automatique chaque soir à 18:00 | Rédaction lancée à la main |
+| | Dans claude.ai (navigateur ou app Claude) | Installée comme application Windows |
+|---|---|---|
+| Voix | Dictée de claude.ai (Chrome, Edge ou app Claude) | Enregistrement du cours + Whisper hors ligne, audio Opus |
+| IA de rédaction | Claude via le compte, sans clé | Claude, ou IA locale gratuite Ollama + `gemma3:4b` |
+| Données | Compte claude.ai (tous les appareils), sinon navigateur | Pareil, plus les fichiers dans `Mes cours\` |
+| Rédaction automatique du soir | Si la page est ouverte | Si l'app est ouverte (même réduite), avec notification |
+
+### Installer l'application Windows
+
+1. Ouvrir l'artifact dans l'**app Claude pour Windows**, puis « Installer comme app ».
+2. Dans l'app installée : **Réglages** → « Autoriser l'accès à l'ordinateur ».
+3. Prérequis : [Python 3.13](https://www.python.org/). « Installer les modules manquants » lance `py -3.13 -m pip install faster-whisper sounddevice numpy av`. On peut aussi indiquer le Python de l'environnement de Cahier Malin (`…\cahier-malin\.venv\Scripts\python.exe`).
+4. Optionnel : [Ollama](https://ollama.com), puis « Télécharger le modèle » dans Réglages.
+5. « Reprendre les cours de l'ancienne appli Cahier Malin » importe `%LOCALAPPDATA%\Cahier Malin\donnees`.
+
+Le modèle Whisper `small` (~460 Mo) se télécharge au premier enregistrement.
 
 ## Fonctionnement technique
 
@@ -55,8 +77,12 @@ Les deux projets d'origine ne sont pas modifiés : cette fusion est une app à p
 | `sample` | Rédaction du cours, kit de révision, questions |
 | `dictation` | Dictée |
 | `db` + `user` | Sauvegarde des cours dans l'espace privé de l'utilisateur (`data/users/<id>/`) |
-| `downloads` | Export du planning `.ics` |
-| `desktop` | Installation comme application |
+| `downloads` | Export du planning `.ics`, de `cours.md`, de la sauvegarde |
+| `desktop` | Installation comme application ; dans l'app, accès `full-access` (balise `claude-artifacts-manifest`) pour lancer le moteur Python et écrire dans `Mes cours\`, et notifications |
+
+### Moteur local (app Windows)
+
+La page embarque `moteur.py` (copie lisible dans le dépôt), l'écrit dans `%LOCALAPPDATA%\Cahier Malin\moteur\` et le lance avec Python. Il reprend le code de Cahier Malin : `Transcriber` (sounddevice 16 kHz, morceaux de 20 à 40 s coupés dans les silences, faster-whisper), compression Opus (PyAV) et `LocalAI` (Ollama). Page et moteur dialoguent en JSON, une ligne par message : commandes sur l'entrée standard (`start`, `stop`, `finalize`, `mics`, `ai`, `ai_pull`…), événements sur la sortie (`text`, `level`, `stopped`, `audio`, `ai_delta`, `ai_done`…).
 
 Ouverte hors de claude.ai, la page fonctionne comme éditeur et outil de révision, avec une sauvegarde dans le navigateur. L'IA, la dictée et Notion n'y sont pas disponibles.
 
@@ -68,7 +94,8 @@ Ouverte hors de claude.ai, la page fonctionne comme éditeur et outil de révisi
   "html": "contenu de l'éditeur", "raw": "texte avant rédaction par l'IA",
   "notes": { "titre", "resume", "sections", "definitions", "a_retenir", "dates_formules", "consignes", "date_controle_mentionnee" },
   "kit": { "fiches", "flashcards", "quiz", "mnemos", "feynman", "carte_mentale" },
-  "done": {}, "cards": {}, "quizBest": null, "notion": { "url", "at" } }
+  "done": {}, "cards": {}, "quizBest": null, "notion": { "url", "at" },
+  "minutes": 0, "audio": false, "folder": "Matière/date - titre" }
 ```
 
 ### Configuration
