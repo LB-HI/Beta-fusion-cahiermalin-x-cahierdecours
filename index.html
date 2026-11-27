@@ -247,6 +247,7 @@ a.btn{text-decoration:none;color:inherit;display:inline-flex;align-items:center}
   --shadow2:0 18px 50px light-dark(#6d28d926,#000a);
   --r:16px;
 }
+body[data-th=light]{color-scheme:light!important}body[data-th=dark]{color-scheme:dark!important}
 body{background:radial-gradient(1200px 600px at 100% -10%,light-dark(#fbe7f3,#2a1534) 0,transparent 60%),radial-gradient(900px 500px at -10% 0,light-dark(#ede5ff,#1e1838) 0,transparent 55%),var(--bg);background-attachment:fixed;font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 ::selection{background:light-dark(#e9d5ff,#5b21b6)}
 h1.app,.head h1,.empty h2,.subject h2,.panel h3,.evening h3,.tonight h2,.fiche h3,.score,#ed h1,#ed h2,#ed h3,#ed h4,.viewer h1,.viewer h2,.viewer h3,.viewer h4,.tgl-t,dialog h3,.mm-c,.mm-b h4,.card strong{font-family:'Plus Jakarta Sans',Inter,system-ui,sans-serif!important;font-stretch:normal}
@@ -1742,15 +1743,16 @@ async function notify(body){try{if(D.full&&(await D.desk.permissions.state('noti
 /* ---------- apparence : clair / sombre / automatique ---------- */
 let theme=ls.get('cmn-theme')||'auto';
 const THEME_LBL={auto:'Automatique',light:'Clair',dark:'Sombre'},THEME_ICO={auto:'🌗',light:'☀️',dark:'🌙'};
+/* le thème choisi est posé sur <body> : la page de claude.ai garde la main sur <html> sans l'écraser */
+function viewerDark(){const r=document.documentElement.dataset.theme;return r==='dark'||(r!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches)}
 function applyTheme(){
-  const r=document.documentElement;
-  if(theme==='auto'){if(r.dataset.mine){delete r.dataset.mine;if(r.dataset.vt)r.dataset.theme=r.dataset.vt;else r.removeAttribute('data-theme')}}
-  else{if(!r.dataset.mine&&r.dataset.theme&&r.dataset.theme!==theme)r.dataset.vt=r.dataset.theme;r.dataset.mine='1';if(r.dataset.theme!==theme)r.dataset.theme=theme}
-  const b=$('#themeBtn');if(b){b.textContent=THEME_ICO[theme];b.title='Thème : '+THEME_LBL[theme]}
+  if(theme==='auto')delete document.body.dataset.th;else document.body.dataset.th=theme;
+  const b=$('#themeBtn');if(b){const dark=theme==='dark'||(theme==='auto'&&viewerDark());b.textContent=dark?'🌙':'☀️';b.title='Thème : '+THEME_LBL[theme]+' (cliquer pour passer en '+(dark?'clair':'sombre')+')'}
 }
-new MutationObserver(()=>{if(theme!=='auto'&&document.documentElement.dataset.theme!==theme)applyTheme()}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+new MutationObserver(applyTheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyTheme);
 function setTheme(t){theme=t;ls.set('cmn-theme',t);applyTheme();if(viewOf()==='set')renderSettings()}
-$('#themeBtn').addEventListener('click',()=>{const dark=theme==='dark'||(theme==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches&&document.documentElement.dataset.theme!=='light')||(theme==='auto'&&document.documentElement.dataset.theme==='dark');setTheme(dark?'light':'dark')});
+$('#themeBtn').addEventListener('click',()=>{const dark=theme==='dark'||(theme==='auto'&&viewerDark());setTheme(dark?'light':'dark')});
 applyTheme();
 
 /* ---------- réglages ---------- */
@@ -1760,7 +1762,7 @@ function renderSettings(){
   const el=$('#v-set'),st=settings();
   const hours=[15,16,17,18,19,20,21].map(h=>`<option value="${h}" ${st.hour===h?'selected':''}>${h}:00</option>`).join('');
   let h=`<div class="wrap"><div class="head"><h1>Réglages</h1></div>`;
-  h+=`<div class="panel"><span class="label">Apparence</span><h3>Thème de l'app</h3><div class="themes" role="group" aria-label="Thème">${[['light','linear-gradient(135deg,#ffffff 50%,#f3edff 50%)'],['dark','linear-gradient(135deg,#1d192c 50%,#2e1c33 50%)'],['auto','linear-gradient(135deg,#ffffff 50%,#1d192c 50%)']].map(([k,bg])=>`<button type="button" data-set="theme" data-t="${k}" aria-pressed="${theme===k}"><i style="background:${bg}"></i>${THEME_ICO[k]} ${THEME_LBL[k]}</button>`).join('')}</div><p class="small muted" style="margin:10px 0 0">« Automatique » suit le réglage clair ou sombre de ton ordinateur. Le bouton ${THEME_ICO.auto} en haut à droite bascule aussi entre clair et sombre.</p></div>`;
+  h+=`<div class="panel"><span class="label">Apparence</span><h3>Thème de l'app</h3><div class="themes" role="group" aria-label="Thème">${[['light','linear-gradient(135deg,#ffffff 50%,#f3edff 50%)'],['dark','linear-gradient(135deg,#1d192c 50%,#2e1c33 50%)'],['auto','linear-gradient(135deg,#ffffff 50%,#1d192c 50%)']].map(([k,bg])=>`<button type="button" data-set="theme" data-t="${k}" aria-pressed="${theme===k}"><i style="background:${bg}"></i>${THEME_ICO[k]} ${THEME_LBL[k]}</button>`).join('')}</div><p class="small muted" style="margin:10px 0 0">« Automatique » suit le réglage clair ou sombre de ton ordinateur. Le bouton ☀️ / 🌙 en haut à droite passe de l’un à l’autre en un clic.</p></div>`;
   /* --- app de bureau --- */
   h+=`<div class="panel"><span class="label">Application Windows</span><h3>Enregistrer le cours au micro et ranger les fichiers sur le PC</h3>`;
   if(!D.desk||!D.desk.fs){
