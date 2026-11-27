@@ -393,6 +393,11 @@ h2[style*=Archivo]{font-family:'Plus Jakarta Sans',Inter,sans-serif!important;le
 .nrow .btn{min-height:36px;padding:0 10px;font-size:14px}
 .xbtn{border:0;background:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0 2px;line-height:1}
 .xbtn:hover{color:var(--danger)}
+.nfl{display:grid;gap:6px;margin:12px 0 0;max-height:420px;overflow:auto}
+.nfi{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border:1px solid var(--bd);border-radius:12px;background:var(--bg);cursor:pointer}
+.nfi:hover{border-color:var(--violet2)}
+.nfi input{width:20px;height:20px;margin-top:2px;flex:none}
+.wrap .row.between>.row{gap:8px}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 </head>
@@ -415,6 +420,7 @@ h2[style*=Archivo]{font-family:'Plus Jakarta Sans',Inter,sans-serif!important;le
 <section class="view" id="v-course" hidden></section>
 <section class="view" id="v-plan" hidden></section>
 <section class="view" id="v-set" hidden></section>
+<section class="view" id="v-flash" hidden></section>
 
 <section id="v-ecrire" hidden>
 <div class="meta">
@@ -1050,7 +1056,7 @@ ${part}
 }
 function kitPrompt(c){
   const days=c.examDate?diffDays(today(),c.examDate):null;
-  const src=c.notes?'COURS (JSON) :\n'+JSON.stringify(c.notes):'COURS :\n"""\n'+plainOf(c.html).slice(0,60000)+'\n"""';
+  const src=c.notes?'COURS (JSON) :\n'+JSON.stringify(c.notes):'COURS :\n"""\n'+(c.fromNotion&&c.raw?c.raw:plainOf(c.html)).slice(0,60000)+'\n"""';
   const local=useLocalAi();
   return `Tu crées un kit de révision motivant pour un élève francophone de BTS SIO, à partir du cours ci-dessous.${days!==null?' Le contrôle a lieu dans '+days+' jour(s).':''}
 Les révisions se font le soir entre 21h et 23h : contenus courts, percutants, ludiques, jamais ennuyeux. Utilise le tutoiement. Couvre TOUT le cours.
@@ -1132,6 +1138,7 @@ async function generateKit(c,silent){
   try{
     const k=await aiJson(kitPrompt(c),'Préparation des révisions',['Création des fiches de synthèse…','Fabrication des flashcards…','Écriture du quiz et de ses pièges…','Recherche de moyens mnémotechniques…','Dessin de la carte mentale…'],silent);
     if(!k||typeof k!=='object'||!arr(k.flashcards).length)throw{code:'bad_shape'};
+    if(c.fromNotion&&c.kit&&arr(c.kit.flashcards).length&&!arr(k.flashcards).length)k.flashcards=c.kit.flashcards;
     c.kit=k;c.cards={};if(FC&&FC.id===c.id)FC=null;if(QZ&&QZ.id===c.id)QZ=null;await saveCourse(c);
     if(silent)return true;
     toast(c.examDate?'Fiches, quiz et planning prêts. Rendez-vous ce soir à 21:00.':'Fiches et quiz prêts.','ok');
@@ -1335,7 +1342,7 @@ function renderHome(){
   const el=$('#v-cours');let h='<div class="wrap">';
   const t=buildPlan().find(p=>p.date===today());
   if(t)h+=`<div class="tonight"><span class="label">Ce soir · 21:00 – 23:00</span><h2>${t.slots.length} séance${t.slots.length>1?'s':''} de 25 min</h2><ol>${t.slots.map(s=>`<li>${s.from} · ${escH(TASKS[s.type].label)} — ${escH(s.c.title||s.c.subject||'')}</li>`).join('')}</ol><p style="margin:10px 0 0"><a href="#planning">Voir le planning →</a></p></div>`;
-  h+=`<div class="row between" style="margin:8px 0"><h2 style="font:800 26px Archivo,sans-serif;margin:0">Mes cours</h2><button class="btn main" data-new>+ Nouveau cours</button></div>`;
+  h+=`<div class="row between" style="margin:8px 0"><h2 style="font:800 26px Archivo,sans-serif;margin:0">Mes cours</h2><span class="row"><a class="btn" href="#flashcards-notion">🃏 Flashcards depuis Notion</a><button class="btn main" data-new>+ Nouveau cours</button></span></div>`;
   if(S.loaded&&!notionRoot())h+=`<div class="note">Bienvenue ! Pour envoyer tes cours dans <b>ton</b> Notion, choisis ta page et tes matières. <a href="#reglages">Configurer mon Notion →</a></div>`;
   if(S.loaded&&S.courses.length)h+=`<p class="small muted" style="margin:4px 0 0">${escH(autoLine())}</p>`;
   if(!S.loaded)h+='<p class="muted">Chargement de tes cours…</p>';
@@ -1376,11 +1383,15 @@ function courseView(c){
   h+=`<div class="row">${canSpeak&&c.notes?'<button class="btn" data-speak="resume">🔊 Écouter le résumé</button>':''}<button class="btn danger" data-del>Supprimer ce cours</button></div>`;
   return h;
 }
+function emptyKitPart(what){return `<div class="empty"><h2>Pas encore de ${what}</h2><p class="muted">Ce cours a pour l'instant ses flashcards. L'IA peut aussi préparer les fiches, le quiz, les moyens mnémotechniques et la carte mentale.</p><div class="row"><button class="btn main" data-kit>Préparer tout le kit de révision</button></div></div>`}
 function fichesView(c){
+  if(!arr(c.kit.fiches).length)return emptyKitPart('fiches');
   return `<div class="fiches">${arr(c.kit.fiches).map((f,i)=>`<div class="fiche" style="--fc:${COLORS[i%COLORS.length]}"><span class="label">Fiche ${i+1}/${c.kit.fiches.length}</span><h3>${fmt(f.titre)}</h3><ul>${arr(f.essentiel).map(x=>`<li>${fmt(x)}</li>`).join('')}</ul>${f.astuce?`<div class="astuce"><b>Astuce :</b> ${fmt(f.astuce)}</div>`:''}${canSpeak?`<div class="row" style="margin-top:8px"><button class="btn ghost" data-speak="fiche" data-i="${i}">🔊 Écouter</button></div>`:''}</div>`).join('')}</div><div class="row" style="margin-top:14px"><button class="btn main" data-tab="flashcards">Je passe aux flashcards</button></div>`;
 }
+function fcViewEmpty(c){return !arr(c.kit.flashcards).length}
 function fcStart(c){const cards=arr(c.kit.flashcards);c.cards=c.cards||{};FC={id:c.id,order:shuffle(cards.map((_,i)=>i)).sort((a,b)=>(c.cards[a]||1)-(c.cards[b]||1)),i:0,flip:false,ok:0}}
 function fcView(c){
+  if(fcViewEmpty(c))return emptyKitPart('flashcards');
   if(!FC||FC.id!==c.id)fcStart(c);
   const cards=arr(c.kit.flashcards),total=FC.order.length,mastered=cards.filter((_,i)=>(c.cards[i]||1)>=3).length;
   if(FC.i>=total)return `<div class="panel" style="text-align:center"><span class="label">Série terminée</span><div class="score">${FC.ok}/${total}</div><p>${FC.ok===total?'Parfait, tout est su.':'Les cartes ratées reviendront en premier la prochaine fois.'} ${mastered}/${total} cartes maîtrisées au total.</p><div class="row" style="justify-content:center"><button class="btn main" data-fcr>Recommencer</button><button class="btn" data-tab="quiz">Passer au quiz</button></div></div>`;
@@ -1394,6 +1405,7 @@ function fcView(c){
 function fcAnswer(ok){const c=cur(),idx=FC.order[FC.i];c.cards[idx]=ok?Math.min(3,(c.cards[idx]||1)+1):1;if(ok){FC.ok++;addXp(5)}FC.i++;FC.flip=false;saveCourse(c,true);renderCourse()}
 function quizView(c){
   const qs=arr(c.kit.quiz);
+  if(!qs.length)return emptyKitPart('quiz');
   if(!QZ||QZ.id!==c.id)QZ={id:c.id,order:shuffle(qs.map((_,i)=>i)),i:0,score:0,combo:0,pick:null};
   if(QZ.i>=QZ.order.length){
     const pct=Math.round(QZ.score/QZ.order.length*100);
@@ -1417,15 +1429,15 @@ function methodsView(c){
 }
 
 /* ---------- navigation ---------- */
-function rerender(){const v=viewOf();if(v==='cours')renderHome();else if(v==='course')renderCourse();else if(v==='plan')renderPlan();else if(v==='set')renderSettings()}
-function viewOf(){const h=location.hash.slice(1);return h.startsWith('cours-')?'course':h==='ecrire'?'ecrire':h==='planning'?'plan':h==='reglages'?'set':'cours'}
+function rerender(){const v=viewOf();if(v==='cours')renderHome();else if(v==='course')renderCourse();else if(v==='plan')renderPlan();else if(v==='set')renderSettings();else if(v==='flash')renderFlash()}
+function viewOf(){const h=location.hash.slice(1);return h.startsWith('cours-')?'course':h==='ecrire'?'ecrire':h==='planning'?'plan':h==='reglages'?'set':h==='flashcards-notion'?'flash':'cours'}
 let lastView=null;
 function route(){
   const h=location.hash.slice(1),v=viewOf();
   if(lastView==='ecrire'&&v!=='ecrire'){syncEditing();if(dict&&dict.active())dict.stop().catch(()=>{})}
   if(v==='course'){const id=h.slice(6);if(S.current!==id){S.current=id;S.tab=S.pendingTab||'cours';FC=null;QZ=null}else if(S.pendingTab)S.tab=S.pendingTab;S.pendingTab=null}
-  ['cours','course','plan','ecrire','set'].forEach(x=>$('#v-'+x).hidden=x!==v);
-  const nv={cours:'cours',course:'cours',plan:'planning',ecrire:'ecrire',set:'reglages'}[v];
+  ['cours','course','plan','ecrire','set','flash'].forEach(x=>$('#v-'+x).hidden=x!==v);
+  const nv={cours:'cours',course:'cours',plan:'planning',ecrire:'ecrire',set:'reglages',flash:'cours'}[v];
   document.querySelectorAll('.nav a').forEach(a=>a.classList.toggle('on',a.dataset.v===nv));
   if(v==='ecrire'&&!editing)newCourse();
   lastView=v;rerender();updateRecInfo();scrollTo(0,0);
@@ -1970,6 +1982,114 @@ async function initDesk(d){
   try{D.plat=await d.os.platform()}catch(e){}
   try{D.perm=await d.permissions.state('full-access')}catch(e){D.perm='unavailable'}
   if(D.perm==='granted')await enableFull();else renderEng();
+}
+
+/* ====================================================================
+   FLASHCARDS DEPUIS NOTION : l'app lit les cours d'une matière dans Notion
+   (les parties de la page et ses sous-pages) et l'IA en fait des flashcards.
+   ==================================================================== */
+const NF={target:'',page:null,parts:null,sel:{},n:20,loading:'',err:''};
+async function notionFetch(id){
+  const mcp=await mcpP;if(!mcp)throw{code:'not_granted'};
+  const r=await mcp.callTool('Notion','notion-fetch',{id});
+  let p=r&&r.payload;if(typeof p==='string'){try{p=JSON.parse(p)}catch(e){p={text:p}}}
+  p=p||{};const t=String(p.text||'');const m=t.match(/<content>([\s\S]*?)<\/content>/);
+  return{title:String(p.title||'').replace(/^[^\p{L}\p{N}]+/u,'').trim(),url:/^https:\/\//.test(p.url||'')?p.url:'',content:m?m[1]:t};
+}
+/* texte lisible pour l'IA : on garde les titres, listes, tableaux et formules, on retire les balises */
+function notionPlain(s){
+  return String(s||'').replace(/<br\s*\/?>/g,'\n').replace(/<h(\d)[^>]*>\s*/g,(m,l)=>'\n'+'#'.repeat(+l)+' ').replace(/<\/h\d>/g,'\n')
+    .replace(/<page [^>]*>[\s\S]*?<\/page>/g,'').replace(/<table-of-contents\s*\/>/g,'').replace(/<[^>]+>/g,'')
+    .replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/\\([()\[\]*_#.>-])/g,'$1').replace(/\n{3,}/g,'\n\n').trim();
+}
+function splitNotion(content){
+  const parts=[];
+  content.split(/(?=<h1[\s>])/).forEach((b,i)=>{
+    const mt=b.match(/^<h1[^>]*>\s*([\s\S]*?)\s*<\/h1>/),txt=notionPlain(b);
+    if(txt.replace(/^#.*$/m,'').trim().length<40)return;
+    const date=(b.match(/<span color="gray">([^<]{6,60})<\/span>/)||[])[1];
+    parts.push({key:'h'+i,kind:'part',title:mt?notionPlain(mt[1]).replace(/^#+\s*/,''):'Début de la page',date:date||'',text:txt,words:(txt.match(/\S+/g)||[]).length});
+  });
+  let k=0;content.replace(/<page url="([^"]+)"[^>]*>([\s\S]*?)<\/page>/g,(m,u,t)=>{parts.push({key:'p'+(k++),kind:'page',title:notionPlain(t)||'Sous-page',url:u});return m});
+  return parts;
+}
+function renderFlash(){
+  const el=$('#v-flash');
+  let h=`<div class="wrap"><a class="btn ghost" href="#cours">← Mes cours</a><div class="head"><span class="label">Révisions</span><h1>Flashcards depuis Notion</h1><p class="muted" style="margin:0">Choisis une matière : l'app lit tes cours dans <b>ton</b> Notion, tu coches ceux à réviser, et l'IA en fait des flashcards.</p></div>`;
+  if(!targets.length){el.innerHTML=h+`<div class="empty"><h2>Aucune matière pour l'instant</h2><p class="muted">Choisis d'abord tes matières dans ton Notion.</p><div class="row"><a class="btn main" href="#reglages">Configurer mon Notion</a></div></div></div>`;return}
+  if(!NF.target||!targets.some(t=>t.id===NF.target))NF.target=targets[0].id;
+  h+=`<div class="panel"><form class="set-row" id="nfLoad" style="margin:0"><label class="lab" for="nfT">Matière</label><select id="nfT">${targets.map(t=>`<option value="${escH(t.id)}" ${t.id===NF.target?'selected':''}>${t.parent?'— ':''}${escH(t.name)}</option>`).join('')}</select><button class="btn main" ${NF.loading?'disabled':''}>📥 Lire dans Notion</button></form></div>`;
+  if(NF.loading)h+=`<div class="panel busy"><div class="spin" aria-hidden="true"></div><p class="muted">${escH(NF.loading)}</p></div>`;
+  if(NF.err)h+=`<p class="note warn">${escH(NF.err)}</p>`;
+  if(NF.parts&&!NF.loading){
+    const P=NF.parts,nSel=P.filter(p=>NF.sel[p.key]).length;
+    if(!P.length)h+=`<div class="empty"><h2>Rien à réviser dans « ${escH(NF.page.title)} »</h2><p class="muted">La page est vide pour l'instant. Écris ou compile un cours dedans, puis recommence.</p></div>`;
+    else{
+      h+=`<div class="panel"><div class="row between"><h3 style="margin:0">${escH(NF.page.title||'Page Notion')}</h3><span class="row"><button class="btn ghost" data-nf="all">Tout cocher</button><button class="btn ghost" data-nf="none">Tout décocher</button>${NF.page.url?`<a class="btn ghost" href="${escH(NF.page.url)}" target="_blank" rel="noopener">Ouvrir dans Notion ↗</a>`:''}</span></div>
+      <div class="nfl">${P.map(p=>`<label class="nfi"><input type="checkbox" data-nfk="${p.key}" ${NF.sel[p.key]?'checked':''}><span><b>${escH(p.title)}</b><br><span class="small muted">${p.kind==='page'?'Sous-page':escH([p.date,p.words?p.words.toLocaleString('fr-FR')+' mots':''].filter(Boolean).join(' · '))}</span></span></label>`).join('')}</div>
+      <div class="set-row" style="margin-top:12px"><label class="lab" for="nfN">Nombre de cartes</label><select id="nfN">${[10,20,30,40].map(n=>`<option ${NF.n===n?'selected':''}>${n}</option>`).join('')}</select><button class="btn main" data-nf="make" ${nSel?'':'disabled'}>🃏 Créer ${NF.n} flashcards${nSel?' ('+nSel+' cours)':''}</button></div></div>`;
+    }
+  }
+  const made=S.courses.filter(c=>c.fromNotion).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)).slice(0,6);
+  if(made.length)h+=`<div class="subject"><h2>Déjà créées <small>${made.length}</small></h2><div class="clist">${made.map(c=>`<button class="card" data-open="${escH(c.id)}" data-tab="flashcards"><span class="small muted">${escH(c.subject||'')} · ${escH(niceDate(c.createdAt))}</span><strong>${escH(c.title)}</strong><span class="pills"><span class="pill blue">${arr(c.kit&&c.kit.flashcards).length} cartes</span>${(()=>{const n=arr(c.kit&&c.kit.flashcards).length,m=Object.values(c.cards||{}).filter(v=>v>=3).length;return m?`<span class="pill ok">${m}/${n} maîtrisées</span>`:''})()}</span></button>`).join('')}</div></div>`;
+  el.innerHTML=h+'</div>';
+}
+$('#v-flash').addEventListener('submit',async e=>{
+  if(e.target.id!=='nfLoad')return;e.preventDefault();
+  NF.target=$('#nfT').value;const t=targets.find(x=>x.id===NF.target);
+  NF.loading='Lecture de « '+(t?t.name:'la matière')+' » dans Notion…';NF.err='';NF.parts=null;renderFlash();
+  try{const p=await notionFetch(NF.target);NF.page=p;NF.parts=splitNotion(p.content);NF.sel={};NF.parts.forEach(x=>{if(x.kind==='part')NF.sel[x.key]=true})}
+  catch(err){NF.err=err&&err.code==='not_granted'?'Notion n\'est pas disponible ici : ouvre l\'app depuis claude.ai avec ton connecteur Notion, et autorise la lecture des pages.':notionErr(err)}
+  NF.loading='';renderFlash();
+});
+$('#v-flash').addEventListener('change',e=>{
+  const t=e.target;
+  if(t.dataset.nfk){NF.sel[t.dataset.nfk]=t.checked;renderFlash()}
+  else if(t.id==='nfN'){NF.n=+t.value;renderFlash()}
+  else if(t.id==='nfT'){NF.target=t.value;NF.parts=null;NF.err='';renderFlash()}
+});
+$('#v-flash').addEventListener('click',e=>{
+  const b=e.target.closest('[data-nf]');if(!b)return;const a=b.dataset.nf;
+  if(a==='all'||a==='none'){NF.parts.forEach(p=>NF.sel[p.key]=a==='all');renderFlash();return}
+  if(a==='make')makeNotionCards();
+});
+async function makeNotionCards(){
+  const P=NF.parts.filter(p=>NF.sel[p.key]);if(!P.length)return;
+  const t=targets.find(x=>x.id===NF.target)||{name:'',id:NF.target};
+  NF.err='';let text='';
+  try{
+    for(const p of P){
+      if(p.kind==='part'){text+=p.text+'\n\n';continue}
+      NF.loading='Lecture de la sous-page « '+p.title+' »…';renderFlash();
+      const sp=await notionFetch(p.url);text+='# '+(sp.title||p.title)+'\n'+notionPlain(sp.content)+'\n\n';
+    }
+  }catch(err){NF.loading='';NF.err=notionErr(err);renderFlash();return}
+  NF.loading='';renderFlash();
+  text=text.trim();if(text.length<60){NF.err='Les cours cochés sont presque vides.';renderFlash();return}
+  const titles=P.map(p=>p.title);
+  const prompt=`Tu crées des flashcards de révision pour un élève francophone de BTS SIO, à partir de ses cours de ${t.name||'cours'} copiés depuis Notion ci-dessous.
+Fais environ ${NF.n} cartes qui couvrent TOUT le contenu, réparties sur chaque partie : définitions, notations, règles, formules, méthodes, pièges, exemples.
+Recto : une question courte et précise (pas de oui/non). Verso : la réponse courte, moins de 30 mots, sans répéter la question. Mets en **gras** le mot-clé de la réponse.
+Écris les formules en texte lisible avec des symboles (∀, ∃, ∈, ⇒, ⇔, ∧, ∨, x², √, ≤), jamais en LaTeX. Pour un cours de langue, garde le vocabulaire dans sa langue avec la traduction.
+Réponds uniquement avec un objet JSON : {"titre":"titre court du lot de cartes","flashcards":[{"q":"…","r":"…"}]}
+
+COURS :
+"""
+${text.slice(0,90000)}
+"""`;
+  let k;
+  try{k=await aiJson(prompt,'Création des flashcards',['Lecture de tes cours Notion…','Repérage des notions à retenir…','Écriture des questions…','Vérification des réponses…'],false)}
+  catch(err){NF.err=aiErr(err);renderFlash();return}
+  const cards=arr(k&&k.flashcards).filter(x=>x&&x.q&&x.r).map(x=>({q:String(x.q),r:String(x.r)}));
+  if(!cards.length){NF.err=aiErr({code:'bad_shape'});renderFlash();return}
+  const name=plain(k.titre||'')||(titles.length===1?titles[0]:NF.page.title||t.name);
+  const c={id:newId(),kind:'course',title:'🃏 '+name,subject:t.name||'Divers',subjectId:t.id,createdAt:today(),status:'ready',
+    html:`<p>Flashcards créées depuis Notion${NF.page.url?` : <a href="${escH(NF.page.url)}">${escH(NF.page.title||t.name)}</a>`:''}.</p><ul>${titles.map(x=>`<li>${escH(x)}</li>`).join('')}</ul>`,
+    raw:text.slice(0,60000),fromNotion:{id:NF.target,url:NF.page.url||null,parts:titles,at:today()},
+    kit:{fiches:[],flashcards:cards,quiz:[],mnemos:[],feynman:[],carte_mentale:null},cards:{}};
+  S.courses.push(c);await saveCourse(c);addXp(10);
+  toast(cards.length+' flashcards prêtes. À toi de jouer !','ok');
+  S.pendingTab='flashcards';location.hash='cours-'+c.id;
 }
 
 /* ---------- application de bureau : icône, installation, mode Windows ---------- */

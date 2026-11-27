@@ -28,6 +28,7 @@ Les deux projets d'origine ne sont pas modifiés : cette fusion est une app à p
 **Réviser** (Cahier Malin)
 - Fiches de synthèse, flashcards à 3 niveaux, quiz avec séries, moyens mnémotechniques, défis Feynman, carte mentale.
 - Question libre sur le cours, réponse par l'IA.
+- 🃏 **Flashcards depuis Notion** : l'app lit une matière dans son Notion (chaque cours de la page et ses sous-pages), on coche les cours à réviser et le nombre de cartes, l'IA crée les flashcards. Le lot devient un cours de révision (flashcards à 3 niveaux), qu'on peut compléter avec fiches et quiz.
 - Lecture à voix haute du résumé et des fiches.
 - Points d'expérience et série de jours.
 
@@ -76,7 +77,7 @@ Le modèle Whisper `small` (~460 Mo) se télécharge au premier enregistrement.
 
 | Capacité | Usage |
 |---|---|
-| `mcp` (connecteur Notion) | `notion-update-page`, `notion-create-pages`, `notion-search` (choix des pages dans Mon Notion) |
+| `mcp` (connecteur Notion) | `notion-update-page`, `notion-create-pages`, `notion-search` (choix des pages dans Mon Notion), `notion-fetch` (lecture des cours pour les flashcards) |
 | `sample` | Rédaction du cours, kit de révision, questions |
 | `dictation` | Dictée |
 | `db` + `user` | Sauvegarde des cours dans l'espace privé de l'utilisateur (`data/users/<id>/`) |
