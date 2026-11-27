@@ -363,6 +363,31 @@ dialog::backdrop{background:light-dark(#2e106555,#000a);backdrop-filter:blur(3px
 .themes button i{width:72px;height:44px;border-radius:10px;border:1px solid var(--bd);display:block}
 .themes button[aria-pressed=true]{border-color:var(--violet);box-shadow:0 0 0 4px light-dark(#ede5ff,#3b2a66)}
 h2[style*=Archivo]{font-family:'Plus Jakarta Sans',Inter,sans-serif!important;letter-spacing:-.02em}
+/* ---------- barres compactes ---------- */
+.tb{padding:8px max(4vw,14px);gap:6px;align-items:center}
+.tb .grp{padding:2px}
+.tb button{min-height:36px;min-width:36px;font-size:14.5px}
+.tb .ddb{display:inline-flex;align-items:center;gap:6px;padding:0 10px;font-weight:600}
+.tb .car,.dock .car{font-size:11px;color:var(--muted)}
+#headLbl{min-width:58px;text-align:left}
+.pop.menu,.pop.callmenu{padding:6px;min-width:230px}
+.menu button,.callmenu button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;min-height:38px;padding:0 10px;border:0;background:none;border-radius:10px;cursor:pointer;font-size:14.5px;color:var(--ink)}
+.menu button:hover,.menu button:focus-visible,.callmenu button:hover,.callmenu button:focus-visible{background:var(--soft);outline:none}
+.menu .ic,.callmenu button span{width:26px;text-align:center;flex:none;font-weight:700}
+.menu .ic.h1{color:#9065B0}.menu .ic.h2{color:#337EA9}.menu .ic.h3{color:#448361}.menu .ic.h4{color:#D9730D}
+.menu kbd{margin-left:auto;font:12px Inter,sans-serif;color:var(--muted);background:var(--hov);border-radius:6px;padding:2px 6px}
+.tablebar.on{display:flex}
+.dock{flex-wrap:nowrap;gap:8px;padding:8px max(3vw,12px)}
+.dock .btn{min-height:40px;padding:0 12px;white-space:nowrap}
+.dock .btn.main{padding:0 16px}
+#status{flex:1 1 120px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13.5px}
+#partial{max-width:22vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13.5px}
+#partial:empty,#recInfo:empty{display:none}
+.dock .dd{border:0;background:none;box-shadow:none;padding:0}
+.dock #moreBtn{min-width:40px;padding:0;font-size:20px;line-height:1}
+.pop.up{top:auto;bottom:calc(100% + 8px);left:auto;right:0}
+#v-ecrire main{padding-bottom:110px}
+@media(max-width:760px){.dock{flex-wrap:wrap}#status{flex-basis:100%;order:-1}.dock .btn.main{margin-left:auto}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 </head>
@@ -407,55 +432,60 @@ h2[style*=Archivo]{font-family:'Plus Jakarta Sans',Inter,sans-serif!important;le
 
 <div class="tb" id="tb">
   <div class="grp">
-    <button class="h1" data-cmd="h1" title="Titre 1 (violet)">T1</button>
-    <button class="h2" data-cmd="h2" title="Titre 2 (bleu)">T2</button>
-    <button class="h3" data-cmd="h3" title="Titre 3 (vert)">T3</button>
-    <button class="h4" data-cmd="h4" title="Titre 4 (orange)">T4</button>
-    <button data-cmd="p" title="Texte normal">¶</button>
-    <button data-cmd="quote" title="Citation">❝</button>
+    <button class="ddb" data-pop="pHead" title="Style du paragraphe" aria-haspopup="true"><span id="headLbl">Texte</span> <span class="car">▾</span></button>
+    <div class="pop menu" id="pHead">
+      <button data-cmd="h1"><span class="ic h1">T1</span>Titre 1</button>
+      <button data-cmd="h2"><span class="ic h2">T2</span>Titre 2</button>
+      <button data-cmd="h3"><span class="ic h3">T3</span>Titre 3</button>
+      <button data-cmd="h4"><span class="ic h4">T4</span>Titre 4</button>
+      <button data-cmd="p"><span class="ic">¶</span>Texte normal</button>
+      <button data-cmd="quote"><span class="ic">❝</span>Citation</button>
+    </div>
   </div>
   <div class="grp">
     <button data-cmd="bold" title="Gras (Ctrl+B)"><b>G</b></button>
     <button data-cmd="italic" title="Italique (Ctrl+I)"><i>I</i></button>
     <button data-cmd="underline" title="Souligné (Ctrl+U)"><u>S</u></button>
-    <button data-cmd="strikeThrough" title="Barré"><s>B</s></button>
-    <button data-cmd="icode" title="Code dans la ligne (Ctrl+E)">&lt;/&gt;</button>
     <button data-pop="pLink" title="Lien (Ctrl+K)">🔗</button>
     <div class="pop linkpop" id="pLink"><h4>Adresse du lien</h4><input id="linkUrl" type="url" placeholder="https://…"><div class="row"><button class="btn" id="linkDel">Retirer</button><button class="btn main" id="linkOk">Ajouter</button></div></div>
-    <button data-cmd="removeFormat" title="Effacer la mise en forme">⌫A</button>
-  </div>
-  <div class="grp">
     <button data-pop="pColor" title="Couleurs"><span style="border-bottom:3px solid #D44C47">A</span></button>
     <div class="pop" id="pColor"><h4>Couleur du texte</h4><div class="sw" id="swFg"></div><h4>Surlignage (mots sélectionnés)</h4><div class="sw" id="swBg"></div><h4>Fond du paragraphe entier</h4><div class="sw" id="swBlk"></div></div>
-  </div>
-  <div class="grp">
-    <button data-cmd="insertUnorderedList" title="Liste à puces">•≡</button>
-    <button data-cmd="insertOrderedList" title="Liste numérotée">1≡</button>
-    <button data-cmd="todo" title="Cases à cocher">☑</button>
-    <button data-cmd="outdent" title="Désindenter (Maj+Tab)">⇤</button>
-    <button data-cmd="indent" title="Indenter (Tab)">⇥</button>
-  </div>
-  <div class="grp">
-    <button data-cmd="table" title="Insérer un tableau">▦</button>
-    <button data-pop="pIns" title="Mise en page">⊞ Mise en page</button>
-    <div class="pop menu" id="pIns">
-      <button data-cmd="cols2"><span>◫</span>2 colonnes</button>
-      <button data-cmd="cols3"><span>▥</span>3 colonnes</button>
-      <button data-cmd="toggle"><span>▸</span>Section dépliante</button>
-      <button data-cmd="code"><span>⌨</span>Bloc de code</button>
-      <button data-cmd="toc"><span>☰</span>Sommaire</button>
-      <button data-cmd="hr"><span>—</span>Séparateur</button>
+    <button class="car" data-pop="pFmt" title="Plus de mise en forme" aria-haspopup="true">▾</button>
+    <div class="pop menu" id="pFmt">
+      <button data-cmd="strikeThrough"><span class="ic"><s>B</s></span>Barré</button>
+      <button data-cmd="icode"><span class="ic">&lt;/&gt;</span>Code dans la ligne <kbd>Ctrl+E</kbd></button>
+      <button data-cmd="removeFormat"><span class="ic">⌫</span>Effacer la mise en forme</button>
     </div>
   </div>
   <div class="grp">
-    <button data-cmd="eq" title="Équation dans la ligne">∑x</button>
-    <button data-cmd="eqb" title="Équation centrée">∑ ▭</button>
-    <button data-pop="pSym" title="Symboles">Ω</button>
-    <div class="pop" id="pSym"><h4>Insérer un symbole</h4><div class="sym" id="sym"></div></div>
+    <button class="ddb" data-pop="pList" title="Listes" aria-haspopup="true">•≡ <span class="car">▾</span></button>
+    <div class="pop menu" id="pList">
+      <button data-cmd="insertUnorderedList"><span class="ic">•≡</span>Liste à puces</button>
+      <button data-cmd="insertOrderedList"><span class="ic">1≡</span>Liste numérotée</button>
+      <button data-cmd="todo"><span class="ic">☑</span>Cases à cocher</button>
+      <button data-cmd="indent"><span class="ic">⇥</span>Indenter <kbd>Tab</kbd></button>
+      <button data-cmd="outdent"><span class="ic">⇤</span>Désindenter <kbd>Maj+Tab</kbd></button>
+    </div>
   </div>
   <div class="grp">
-    <button data-pop="pCall" title="Encadré">▣ Encadré</button>
+    <button class="ddb" data-pop="pIns" title="Mise en page et insertion" aria-haspopup="true">＋ Insérer <span class="car">▾</span></button>
+    <div class="pop menu" id="pIns">
+      <button data-cmd="table"><span class="ic">▦</span>Tableau</button>
+      <button data-cmd="cols2"><span class="ic">◫</span>2 colonnes</button>
+      <button data-cmd="cols3"><span class="ic">▥</span>3 colonnes</button>
+      <button data-cmd="toggle"><span class="ic">▸</span>Section dépliante</button>
+      <button data-cmd="code"><span class="ic">⌨</span>Bloc de code</button>
+      <button data-cmd="eq"><span class="ic">∑x</span>Équation dans la ligne</button>
+      <button data-cmd="eqb"><span class="ic">∑</span>Équation centrée</button>
+      <button data-cmd="toc"><span class="ic">☰</span>Sommaire</button>
+      <button data-cmd="hr"><span class="ic">—</span>Séparateur</button>
+    </div>
+  </div>
+  <div class="grp">
+    <button class="ddb" data-pop="pCall" title="Encadré" aria-haspopup="true">▣ Encadré <span class="car">▾</span></button>
     <div class="pop callmenu" id="pCall"></div>
+    <button data-pop="pSym" title="Symboles">Ω</button>
+    <div class="pop" id="pSym"><h4>Insérer un symbole</h4><div class="sym" id="sym"></div></div>
   </div>
   <div class="grp">
     <button data-cmd="undo" title="Annuler (Ctrl+Z)">↶</button>
@@ -464,7 +494,7 @@ h2[style*=Archivo]{font-family:'Plus Jakarta Sans',Inter,sans-serif!important;le
   <div class="grp tablebar" id="tablebar">
     <button data-t="row">+ ligne</button><button data-t="col">+ colonne</button>
     <button data-t="delrow">− ligne</button><button data-t="delcol">− colonne</button>
-    <button data-t="head">En-tête</button><button data-t="del">Suppr. tableau</button>
+    <button data-t="head">En-tête</button><button data-t="del">Suppr.</button>
   </div>
 </div>
 
@@ -473,11 +503,16 @@ h2[style*=Archivo]{font-family:'Plus Jakarta Sans',Inter,sans-serif!important;le
   <div id="status" role="status">Écris, dicte ou enregistre ton cours. Il est sauvegardé automatiquement.</div>
   <span id="partial"></span>
   <span id="recInfo"></span>
-  <button class="btn recbtn" id="rec" aria-pressed="false">⏺ Enregistrer le cours</button>
-  <button class="btn micbtn" id="mic" aria-pressed="false">🎤 Dicter</button>
-  <button class="btn" id="aiNotes">✨ Rédiger avec l'IA</button>
-  <button class="btn" id="showMd">Voir le code</button>
-  <button class="btn" id="done">Terminé</button>
+  <button class="btn recbtn" id="rec" aria-pressed="false" title="Enregistrer le cours au micro (app Windows)">⏺ Enregistrer</button>
+  <button class="btn micbtn" id="mic" aria-pressed="false" title="Dicter">🎤 Dicter</button>
+  <button class="btn" id="aiNotes" title="Rédiger le cours avec l'IA">✨ Rédiger</button>
+  <div class="grp dd">
+    <button class="btn" id="moreBtn" aria-haspopup="true" aria-expanded="false" title="Plus d'actions">⋯</button>
+    <div class="pop menu up" id="pMore">
+      <button id="showMd"><span class="ic">〈/〉</span>Voir le code Notion</button>
+      <button id="done"><span class="ic">✓</span>Terminé, ranger le cours</button>
+    </div>
+  </div>
   <button class="btn main" id="compile">Compiler vers Notion</button>
 </div>
 </section>
@@ -792,7 +827,7 @@ function sanitize(h,forView){
 const plainOf=h=>{const d=document.createElement('div');d.innerHTML=sanitize(h);return d.innerText||d.textContent||''};
 let toastT;
 function toast(msg,cls){const t=$('#toast');t.textContent=msg;t.className=cls||'';t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,5200)}
-function setStatus(msg,cls,link){const s=$('#status');s.className=cls||'';s.textContent=msg;if(link){s.append(' ');const a=document.createElement('a');a.href=link;a.target='_blank';a.rel='noopener';a.textContent='Ouvrir dans Notion';s.append(a)}}
+function setStatus(msg,cls,link){const s=$('#status');s.className=cls||'';s.textContent=msg;s.title=msg;if(link){s.append(' ');const a=document.createElement('a');a.href=link;a.target='_blank';a.rel='noopener';a.textContent='Ouvrir dans Notion';s.append(a)}}
 
 /* ---------- stockage : sur ton compte (db), sinon sur cet appareil ---------- */
 const Store={db:null,uid:null,mode:'local',q:{},
@@ -913,7 +948,7 @@ let dictT0=0;
   d.onPartial(({text})=>{$('#partial').textContent=text?'🎤 '+text:''});
   d.onFinal(({text})=>insertDictation(text));
   d.onState(({state,reason})=>{
-    const on=state!=='idle',b=$('#mic');b.setAttribute('aria-pressed',on);b.textContent=on?'⏹ Arrêter la dictée':'🎤 Dicter';
+    const on=state!=='idle',b=$('#mic');b.setAttribute('aria-pressed',on);b.textContent=on?'⏹ Stop':'🎤 Dicter';
     if(state==='listening'){if(!dictT0)dictT0=Date.now();setStatus('Je t\'écoute… parle normalement, le texte arrive dans la feuille.','')}
     if(!on){if(dictT0&&editing){editing.minutes=(editing.minutes||0)+(Date.now()-dictT0)/60000}dictT0=0;$('#partial').textContent='';if(reason&&reason!=='stopped'&&reason!=='viewer_stopped')setStatus(dictMsg(reason),'err');if(reason==='unavailable')dict=null}
     updateRecInfo();
@@ -1507,6 +1542,13 @@ function localAi(prompt,o){
   });
 }
 
+/* ---------- barres compactes : menus déroulants ---------- */
+tb.addEventListener('click',e=>{const b=e.target.closest('button');if(b&&!b.dataset.pop&&b.closest('.pop')&&!b.closest('#pLink'))closePops()});
+document.addEventListener('selectionchange',()=>{const l=$('#headLbl');if(!l)return;const bl=curBlock();l.textContent=({H1:'Titre 1',H2:'Titre 2',H3:'Titre 3',H4:'Titre 4',BLOCKQUOTE:'Citation'})[bl&&bl.tagName]||'Texte'});
+$('#moreBtn').addEventListener('click',()=>{const p=$('#pMore'),o=p.classList.contains('open');closePops();p.classList.toggle('open',!o);$('#moreBtn').setAttribute('aria-expanded',!o)});
+$('#pMore').addEventListener('click',e=>{if(e.target.closest('button')){closePops();$('#moreBtn').setAttribute('aria-expanded','false')}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('.pop.open'))closePops()});
+
 /* ---------- enregistrement du cours au micro (moteur local) ---------- */
 function recReady(){return D.full&&D.state==='ready'&&D.st&&D.st.modules&&D.st.modules.sounddevice&&D.st.modules.faster_whisper&&D.st.modules.numpy}
 async function recToggle(){
@@ -1526,7 +1568,7 @@ function setRecUi(){
   const b=$('#rec');
   b.hidden=false;
   b.setAttribute('aria-pressed',R.on);b.disabled=R.finishing;
-  b.textContent=R.on?'⏸ Pause':R.finishing?'Fin de la transcription…':(R.course&&R.course===editing&&R.course.minutes?'⏺ Reprendre l\'enregistrement':'⏺ Enregistrer le cours');
+  b.textContent=R.on?'⏸ Pause':R.finishing?'⏳ Transcription…':(R.course&&R.course===editing&&R.course.minutes?'⏺ Reprendre':'⏺ Enregistrer');
   $('#navrec').hidden=!R.on;
   clearInterval(R.tick);if(R.on)R.tick=setInterval(updateRecInfo,1000);
   updateRecInfo();
