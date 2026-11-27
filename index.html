@@ -388,6 +388,11 @@ h2[style*=Archivo]{font-family:'Plus Jakarta Sans',Inter,sans-serif!important;le
 .pop.up{top:auto;bottom:calc(100% + 8px);left:auto;right:0}
 #v-ecrire main{padding-bottom:110px}
 @media(max-width:760px){.dock{flex-wrap:wrap}#status{flex-basis:100%;order:-1}.dock .btn.main{margin-left:auto}}
+.nres{display:grid;gap:6px;margin:8px 0;max-height:320px;overflow:auto}
+.nrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--bd);border-radius:12px;background:var(--bg)}
+.nrow .btn{min-height:36px;padding:0 10px;font-size:14px}
+.xbtn{border:0;background:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0 2px;line-height:1}
+.xbtn:hover{color:var(--danger)}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 </head>
@@ -830,12 +835,13 @@ function toast(msg,cls){const t=$('#toast');t.textContent=msg;t.className=cls||'
 function setStatus(msg,cls,link){const s=$('#status');s.className=cls||'';s.textContent=msg;s.title=msg;if(link){s.append(' ');const a=document.createElement('a');a.href=link;a.target='_blank';a.rel='noopener';a.textContent='Ouvrir dans Notion';s.append(a)}}
 
 /* ---------- stockage : sur ton compte (db), sinon sur cet appareil ---------- */
-const Store={db:null,uid:null,mode:'local',q:{},
+const Store={db:null,uid:null,mode:'local',owner:null,q:{},
   async init(){
     if(!window.claude)return;
     try{
       const [db,user]=await Promise.all([claude.use('db'),claude.use('user')]);
       const id=user?await user.id().catch(()=>null):null;
+      if(user)this.owner=await user.isOwner().catch(()=>null)??null;
       if(db&&id){this.db=db;this.uid=id;this.mode='db'}
     }catch(e){}
   },
@@ -892,8 +898,19 @@ function renderStats(){
 }
 
 /* ---------- matières : gardées avec ton compte, et retrouvées depuis les cours ---------- */
+/* chaque profil a son Notion : page racine + matières, gardées dans son espace privé.
+   Le propriétaire de l'app garde ses pages par défaut (ROOT, DEFAULTS). */
+const isOwnerView=()=>Store.owner!==false;
+function notionRoot(){const n=S.profile.notion;return n&&n.root&&n.root.id?n.root.id:(isOwnerView()?ROOT:null)}
+function notionRootTitle(){const n=S.profile.notion;return n&&n.root&&n.root.id?n.root.title:(isOwnerView()?'Léo — Efrei (BTS SIO 1)':'')}
+function loadProfileTargets(){
+  const n=S.profile.notion;
+  targets=n&&Array.isArray(n.subjects)?n.subjects.slice():(isOwnerView()?DEFAULTS.slice():[]);
+  if(!n&&isOwnerView())mergeTargets(S.profile.targets);
+}
 function mergeTargets(list){let added=false;for(const t of arr(list)){if(t&&t.id&&t.id!=='new'&&!targets.some(x=>x.id===t.id)){targets.push({id:t.id,name:String(t.name||'Matière'),parent:t.parent||undefined});added=true}}return added}
-function saveTargets(){ls.set('cahier-targets',targets);const extra=targets.filter(t=>!DEFAULTS.some(d=>d.id===t.id));S.profile.targets=extra;saveProfile()}
+function saveTargets(){const n=S.profile.notion||{};S.profile.notion={root:n.root&&n.root.id?n.root:(isOwnerView()?{id:ROOT,title:'Léo — Efrei (BTS SIO 1)'}:null),subjects:targets.map(t=>({id:t.id,name:t.name,parent:t.parent||undefined}))};saveProfile()}
+const firstTarget=()=>(targets[0]||{id:'new'}).id;
 
 /* ---------- éditeur : un cours = une page ---------- */
 let tSave;
@@ -909,13 +926,13 @@ function syncEditing(){
 }
 ed.addEventListener('input',save);$('#title').addEventListener('input',save);$('#newName').addEventListener('input',save);
 function newCourse(){
-  editing={id:newId(),kind:'course',title:'',subject:'',subjectId:$('#target').value||targets[0].id,createdAt:today(),status:'draft',html:'',raw:''};
+  editing={id:newId(),kind:'course',title:'',subject:'',subjectId:$('#target').value||firstTarget(),createdAt:today(),status:'draft',html:'',raw:''};
   ed.innerHTML='';$('#title').value='';setStatus('Nouveau cours. Écris, dicte ou enregistre : tout est sauvegardé automatiquement.','');updateRecInfo();
 }
 function openEditor(c){
   editing=c;ed.innerHTML=sanitize(c.html||'');$('#title').value=c.title||'';
   if(c.subjectId&&c.subjectId!=='new'&&!targets.some(t=>t.id===c.subjectId)){mergeTargets([{id:c.subjectId,name:c.subject}]);saveTargets()}
-  renderTargets(c.subjectId&&(c.subjectId==='new'||targets.some(t=>t.id===c.subjectId))?c.subjectId:targets[0].id);
+  renderTargets(c.subjectId&&(c.subjectId==='new'||targets.some(t=>t.id===c.subjectId))?c.subjectId:firstTarget());
   if(c.subjectId==='new')$('#newName').value=c.subject||'';
   mode=c.mode==='sub'?'sub':'append';document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.mode===mode));
   rerenderEq();setStatus('Modification de « '+(c.title||'cours sans titre')+' ».','');updateRecInfo();
@@ -1162,6 +1179,8 @@ function buildNotion(c,{sub,kit,target}){
 const pageUrl=id=>'https://app.notion.com/p/'+id.replace(/-/g,'');
 function notionErr(e){
   switch(e&&e.code){
+    case'no_root':return'Choisis d\'abord la page de ton Notion où ranger les matières : Réglages > Mon Notion.';
+    case'no_target':return'Choisis une matière, ou configure ton Notion dans Réglages > Mon Notion.';
     case'needs_reauth':return'La connexion à Notion a expiré : reconnecte Notion dans claude.ai → Paramètres → Connecteurs.';
     case'server_not_connected':return'Notion n\'est pas connecté : ajoute-le dans claude.ai → Paramètres → Connecteurs.';
     case'selection_required':return'Plusieurs connecteurs Notion existent : choisis-en un quand claude.ai te le demande, puis renvoie.';
@@ -1177,9 +1196,11 @@ async function sendCourse(c,opts){
   const target=opts.target||c.subjectId;
   const {title,content}=buildNotion(c,Object.assign({},opts,{target}));
   let url;
+  if(!target)throw{code:'no_target'};
   if(target==='new'){
-    const name=c.subject||'Nouvelle matière';
-    const r=await mcp.callTool('Notion','notion-create-pages',{parent:{type:'page_id',page_id:ROOT},allow_async:false,pages:[{properties:{title:name},icon:'📚',content}]});
+    const name=c.subject||'Nouvelle matière',root=notionRoot();
+    if(!root)throw{code:'no_root'};
+    const r=await mcp.callTool('Notion','notion-create-pages',{parent:{type:'page_id',page_id:root},allow_async:false,pages:[{properties:{title:name},icon:'📚',content}]});
     const p=r.payload&&r.payload.pages&&r.payload.pages[0];
     if(p&&p.id){mergeTargets([{id:p.id,name}]);saveTargets();c.subjectId=p.id;if(editing===c)renderTargets(p.id)}
     url=p&&p.url;
@@ -1207,7 +1228,7 @@ function openSend(c){
   sendC=c;const s=$('#sendTarget');
   if(c.subjectId&&c.subjectId!=='new'&&!targets.some(t=>t.id===c.subjectId)){mergeTargets([{id:c.subjectId,name:c.subject}]);saveTargets()}
   s.innerHTML=targets.map(t=>`<option value="${escH(t.id)}">${t.parent?'— ':''}${escH(t.name)}</option>`).join('')+(c.subjectId==='new'?`<option value="new">+ ${escH(c.subject||'Nouvelle matière')} (nouvelle)</option>`:'');
-  s.value=c.subjectId&&[...s.options].some(o=>o.value===c.subjectId)?c.subjectId:targets[0].id;
+  s.value=c.subjectId&&[...s.options].some(o=>o.value===c.subjectId)?c.subjectId:(s.options[0]&&s.options[0].value);
   $('#sendSub').checked=c.mode==='sub';$('#sendKit').checked=!!c.kit;$('#sendKit').disabled=!c.kit;
   $('#sendMsg').textContent=c.kit?'':'Les révisions ne sont pas encore préparées pour ce cours.';$('#sendMsg').className='small muted';
   $('#dSend').showModal();
@@ -1315,6 +1336,7 @@ function renderHome(){
   const t=buildPlan().find(p=>p.date===today());
   if(t)h+=`<div class="tonight"><span class="label">Ce soir · 21:00 – 23:00</span><h2>${t.slots.length} séance${t.slots.length>1?'s':''} de 25 min</h2><ol>${t.slots.map(s=>`<li>${s.from} · ${escH(TASKS[s.type].label)} — ${escH(s.c.title||s.c.subject||'')}</li>`).join('')}</ol><p style="margin:10px 0 0"><a href="#planning">Voir le planning →</a></p></div>`;
   h+=`<div class="row between" style="margin:8px 0"><h2 style="font:800 26px Archivo,sans-serif;margin:0">Mes cours</h2><button class="btn main" data-new>+ Nouveau cours</button></div>`;
+  if(S.loaded&&!notionRoot())h+=`<div class="note">Bienvenue ! Pour envoyer tes cours dans <b>ton</b> Notion, choisis ta page et tes matières. <a href="#reglages">Configurer mon Notion →</a></div>`;
   if(S.loaded&&S.courses.length)h+=`<p class="small muted" style="margin:4px 0 0">${escH(autoLine())}</p>`;
   if(!S.loaded)h+='<p class="muted">Chargement de tes cours…</p>';
   else if(!S.courses.length)h+=`<div class="empty"><h2>Ton cahier est vide</h2><p class="muted">Au début du cours, ouvre « Écrire un cours » : tape, dicte ou enregistre le cours. À la fin, l'IA les remet au propre, prépare fiches, flashcards et quiz, et tu envoies le tout dans Notion.</p><div class="row"><button class="btn main" data-new>Écrire mon premier cours</button><a class="btn" href="#reglages">Importer d'anciens cours</a></div></div>`;
@@ -1471,6 +1493,7 @@ document.addEventListener('keydown',e=>{
    la page lance le moteur Python de Cahier Malin : micro + Whisper sans internet,
    audio en Opus, IA locale Ollama, rangement dans Mes cours\<Matière>\<date - titre>.
    ==================================================================== */
+targets=[];
 const D={desk:null,full:false,perm:'unavailable',install:'unavailable',plat:'',home:'',data:'',eng:null,state:'off',buf:'',errLog:'',err:'',st:null,mics:null,model:null,ollama:null,pull:null,ai:{},log:''};
 const dev=Object.assign({py:'py -3.13',mic:'',model:'small',lang:'auto',root:'',ai:'claude'},ls.get('cmn-dev')||{});
 const saveDev=()=>ls.set('cmn-dev',dev);
@@ -1805,6 +1828,15 @@ function renderSettings(){
   const hours=[15,16,17,18,19,20,21].map(h=>`<option value="${h}" ${st.hour===h?'selected':''}>${h}:00</option>`).join('');
   let h=`<div class="wrap"><div class="head"><h1>Réglages</h1></div>`;
   h+=`<div class="panel"><span class="label">Apparence</span><h3>Thème de l'app</h3><div class="themes" role="group" aria-label="Thème">${[['light','linear-gradient(135deg,#ffffff 50%,#f3edff 50%)'],['dark','linear-gradient(135deg,#1d192c 50%,#2e1c33 50%)'],['auto','linear-gradient(135deg,#ffffff 50%,#1d192c 50%)']].map(([k,bg])=>`<button type="button" data-set="theme" data-t="${k}" aria-pressed="${theme===k}"><i style="background:${bg}"></i>${THEME_ICO[k]} ${THEME_LBL[k]}</button>`).join('')}</div><p class="small muted" style="margin:10px 0 0">« Automatique » suit le réglage clair ou sombre de ton ordinateur. Le bouton ☀️ / 🌙 en haut à droite passe de l’un à l’autre en un clic.</p></div>`;
+  /* --- mon Notion --- */
+  const nr=notionRoot(),ns=D.nsearch;
+  h+=`<div class="panel" id="myNotion"><span class="label">Mon Notion</span><h3>Où envoyer mes cours</h3>
+  <p class="small muted" style="margin:0 0 8px">Chaque personne utilise <b>son</b> compte Notion (son connecteur dans claude.ai) et choisit ici ses pages. Ce choix est gardé dans son profil, jamais partagé.</p>
+  <div class="stat">${dotOf(!!nr)}Page racine : ${nr?'<b>'+escH(notionRootTitle()||'page choisie')+'</b>':'pas encore choisie'}</div>
+  <div class="stat">${dotOf(targets.length?true:null)}Matières : ${targets.length?targets.map(t=>`<span class="pill" style="margin:2px">${escH(t.name)} <button class="xbtn" data-set="nrm" data-id="${escH(t.id)}" aria-label="Retirer ${escH(t.name)}">×</button></span>`).join(''):'aucune pour l\'instant'}</div>
+  <form class="set-row" id="nSearchF"><input type="text" id="nQ" placeholder="Chercher une page dans mon Notion (ex. BTS, Maths…)" value="${escH(D.nq||'')}" autocomplete="off"><button class="btn main">Chercher</button></form>
+  ${ns===true?'<p class="small muted">Recherche…</p>':typeof ns==='string'?`<p class="small err">${escH(ns)}</p>`:Array.isArray(ns)?(ns.length?`<div class="nres">${ns.map((p,i)=>`<div class="nrow"><span><b>${escH(p.title||'Sans titre')}</b>${p.path?`<br><span class="small muted">${escH(p.path)}</span>`:''}</span><span class="row"><button class="btn" data-set="nroot" data-i="${i}">Page racine</button><button class="btn" data-set="nadd" data-i="${i}" ${targets.some(t=>t.id===p.id)?'disabled':''}>+ Matière</button></span></div>`).join('')}</div>`:'<p class="small muted">Aucune page trouvée.</p>'):''}
+  <p class="small muted">La page racine reçoit les nouvelles matières créées depuis l'app. Chaque matière est une page où les cours s'ajoutent.${isOwnerView()&&S.profile.notion?' <button class="btn ghost" data-set="ndefault">Revenir à mes pages par défaut</button>':''}</p></div>`;
   /* --- app de bureau --- */
   h+=`<div class="panel"><span class="label">Application Windows</span><h3>Enregistrer le cours au micro et ranger les fichiers sur le PC</h3>`;
   if(!D.desk||!D.desk.fs){
@@ -1869,6 +1901,12 @@ function renderSettings(){
 $('#v-set').addEventListener('click',async e=>{
   const b=e.target.closest('[data-set]');if(!b)return;const a=b.dataset.set;
   if(a==='theme'){setTheme(b.dataset.t);return}
+  if(a==='nroot'||a==='nadd'){const p=(D.nsearch||[])[+b.dataset.i];if(!p)return;
+    if(a==='nroot'){const n=S.profile.notion||{subjects:targets.slice()};S.profile.notion={root:{id:p.id,title:p.title||'Page'},subjects:n.subjects||targets.slice()};saveProfile();toast('Page racine : '+(p.title||'page choisie'),'ok')}
+    else{mergeTargets([{id:p.id,name:p.title||'Matière'}]);saveTargets();toast('Matière ajoutée : '+(p.title||''),'ok')}
+    renderTargets(editing&&targets.some(t=>t.id===editing.subjectId)?editing.subjectId:firstTarget());renderSettings();return}
+  if(a==='nrm'){targets=targets.filter(t=>t.id!==b.dataset.id);saveTargets();renderTargets(firstTarget());renderSettings();return}
+  if(a==='ndefault'){delete S.profile.notion;saveProfile();loadProfileTargets();renderTargets(firstTarget());renderSettings();toast('Pages par défaut rétablies.','ok');return}
   if(a==='install'){const r=await D.desk.install.request().catch(()=>'failed');if(r==='installed')toast('Installation lancée.','ok');else if(r!=='cancelled')toast('L\'installation n\'a pas pu se faire ici.','err');return}
   if(a==='grant'){try{const r=await D.desk.permissions.request(['full-access','notifications']);D.perm=r['full-access'];if(D.perm==='granted')await enableFull();else renderSettings()}catch(err){toast('Demande impossible : '+err.message,'err')}return}
   if(a==='manage'){D.desk.permissions.manage().then(async()=>{D.perm=await D.desk.permissions.state('full-access');if(D.perm==='granted')enableFull();else renderSettings()}).catch(()=>{});return}
@@ -1885,6 +1923,18 @@ $('#v-set').addEventListener('click',async e=>{
   if(a==='export'){exportBackup();return}
   if(a==='import'){$('#importFile').click();return}
   if(a==='importold'){importOldApp();return}
+});
+async function notionSearch(q){
+  const mcp=await mcpP;if(!mcp)throw{code:'not_granted'};
+  const r=await mcp.callTool('Notion','notion-search',{query:q,page_size:15,max_highlight_length:0});
+  let p=r&&r.payload;if(typeof p==='string'){try{p=JSON.parse(p)}catch(e){p=null}}
+  return arr(p&&p.results).filter(x=>x&&x.id&&(x.type==='page'||!x.type)).map(x=>({id:String(x.id),title:String(x.title||''),path:String(x.path||'')}));
+}
+document.addEventListener('submit',async e=>{
+  if(e.target.id!=='nSearchF')return;e.preventDefault();
+  const q=$('#nQ').value.trim();if(!q)return;D.nq=q;D.nsearch=true;renderSettings();
+  try{D.nsearch=await notionSearch(q)}catch(err){D.nsearch=err&&err.code==='not_granted'?'Notion n\'est pas disponible ici : ouvre l\'app depuis claude.ai, avec ton connecteur Notion activé.':notionErr(err)}
+  if(viewOf()==='set'){renderSettings();const el=$('#myNotion');if(el)el.scrollIntoView({block:'nearest'})}
 });
 $('#v-set').addEventListener('change',e=>{
   const t=e.target;
@@ -1946,8 +1996,7 @@ function drawIcon(){
 
 /* ---------- démarrage ---------- */
 (async function boot(){
-  const t=ls.get('cahier-targets');if(Array.isArray(t)&&t.length)mergeTargets(t);
-  renderTargets(targets[0].id);renderStats();
+  renderTargets(firstTarget());renderStats();
   if(!location.hash)history.replaceState(null,'','#cours');
   route();
   await Store.init();
@@ -1956,11 +2005,12 @@ function drawIcon(){
   catch(e){Store.mode='local';all=Store.local();const n=$('#storeNote');n.hidden=false;n.textContent='Tes cours en ligne sont injoignables pour l\'instant : ce que tu fais maintenant est gardé sur cet appareil.'}
   S.courses=all.filter(x=>x.kind==='course');
   const p=all.find(x=>x.id==='profile');if(p)S.profile=Object.assign({kind:'profile'},p);
-  /* matières créées depuis l'app : retrouvées sur tous les appareils */
-  let added=mergeTargets(S.profile.targets);
-  added=mergeTargets(S.courses.filter(c=>c.subjectId&&c.subjectId!=='new').map(c=>({id:c.subjectId,name:c.subject})))||added;
+  /* le Notion de ce profil : ses matières, ou celles par défaut pour le propriétaire */
+  loadProfileTargets();
+  if(isOwnerView()&&!S.profile.notion){const t=ls.get('cahier-targets');if(Array.isArray(t))mergeTargets(t)}
+  let added=false;added=mergeTargets(S.courses.filter(c=>c.subjectId&&c.subjectId!=='new').map(c=>({id:c.subjectId,name:c.subject})))||added;
   if(added)saveTargets();
-  renderTargets(editing&&editing.subjectId&&targets.some(x=>x.id===editing.subjectId)?editing.subjectId:$('#target').value||targets[0].id);
+  renderTargets(editing&&editing.subjectId&&targets.some(x=>x.id===editing.subjectId)?editing.subjectId:firstTarget());
   S.loaded=true;
   if(Store.mode==='local'&&$('#storeNote').hidden){const n=$('#storeNote');n.hidden=false;n.textContent='Sauvegarde sur cet appareil uniquement. Ouvre l\'app depuis claude.ai pour retrouver tes cours sur tous tes appareils.'}
   if(editing&&!S.courses.includes(editing)&&!ed.textContent.trim())editing=null;

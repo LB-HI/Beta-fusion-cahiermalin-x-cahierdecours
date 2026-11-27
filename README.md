@@ -47,6 +47,7 @@ Les deux projets d'origine ne sont pas modifiés : cette fusion est une app à p
 **Réglages** : micro, modèle de voix, langue, commande Python, installation des modules, IA (Claude ou Ollama), rédaction du soir, dossier « Mes cours », sauvegarde.
 
 **Notion**
+- **Chacun son Notion** : chaque personne utilise son propre connecteur Notion et choisit dans Réglages > Mon Notion sa page racine et ses matières (recherche dans son Notion). Ce choix est gardé dans son profil privé. Le propriétaire de l'app garde ses pages par défaut ; un nouvel utilisateur est invité à configurer les siennes.
 - Envoi du cours à la suite de la page de la matière, dans une sous-page, ou dans une nouvelle matière.
 - Option : ajouter les révisions (fiches, flashcards, quiz, méthodes) dans une section dépliante « 🧠 Révisions ».
 
@@ -75,7 +76,7 @@ Le modèle Whisper `small` (~460 Mo) se télécharge au premier enregistrement.
 
 | Capacité | Usage |
 |---|---|
-| `mcp` (connecteur Notion) | `notion-update-page`, `notion-create-pages` |
+| `mcp` (connecteur Notion) | `notion-update-page`, `notion-create-pages`, `notion-search` (choix des pages dans Mon Notion) |
 | `sample` | Rédaction du cours, kit de révision, questions |
 | `dictation` | Dictée |
 | `db` + `user` | Sauvegarde des cours dans l'espace privé de l'utilisateur (`data/users/<id>/`) |
@@ -101,5 +102,7 @@ Ouverte hors de claude.ai, la page fonctionne comme éditeur et outil de révisi
 ```
 
 ### Configuration
+
+Partage : une personne de la même organisation claude.ai peut utiliser l'artifact partagé avec son propre Notion. Une personne extérieure à l'organisation n'a pas accès aux connecteurs depuis un lien partagé : elle publie sa propre copie de `index.html` dans son claude.ai, puis configure « Mon Notion ».
 
 Les identifiants des pages Notion (page racine et matières) sont en haut du script, dans `ROOT` et `DEFAULTS`.
